@@ -110,6 +110,55 @@ input,textarea{font:inherit;color:inherit}
 .t-val{font-size:20px;font-weight:600}
 .btn-primary{width:100%;height:44px;border-radius:6px;background:var(--primary);color:#fff;font-size:16px;text-align:center;transition:background .2s}
 .btn-primary:disabled{background:#E4E4E4;color:#fff}
+.btn-primary.is-off{background:#E4E4E4;color:#fff;cursor:default}
+
+/* Check Stock (VN-85972) */
+.btn-stock{width:100%;height:42px;margin-bottom:8px;border-radius:6px;border:1.5px solid var(--primary);color:var(--primary);background:#fff;font-size:15.5px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-stock:disabled{border-color:#D5DADE;color:#AEB4B8}
+.btn-stock.err{border-color:#C62828;color:#C62828;background:#FFF6F6}
+.btn-stock .spin{width:16px;height:16px;border:2px solid #CFE0E2;border-top-color:var(--primary);border-radius:50%;animation:spin .8s linear infinite}
+.stock-line{display:flex;align-items:center;gap:4px;font-size:12.5px;font-weight:600;color:#16835A;margin:-4px 0 10px}
+.stock-line.warn{color:var(--warn)}
+.stock-line span{font-variant-numeric:tabular-nums}
+.co-wrap{position:relative}
+.tip{position:absolute;left:50%;bottom:calc(100% + 10px);transform:translateX(-50%);width:88%;background:#263238;color:#fff;font-size:12.5px;line-height:1.4;padding:9px 11px;border-radius:7px;text-align:center;opacity:0;pointer-events:none;transition:opacity .15s;z-index:5}
+.tip::after{content:"";position:absolute;left:50%;top:100%;transform:translateX(-50%);border:6px solid transparent;border-top-color:#263238}
+.tip.show{opacity:1}
+.sbanner{display:flex;align-items:flex-start;gap:10px;padding:12px 14px 12px 12px;border-left:4px solid;line-height:1.4}
+.sbanner + .banner{border-top:1px solid rgba(0,0,0,.06)}
+.sb-ic{flex:none;width:20px;height:20px;margin-top:1px}
+.sb-ic svg{display:block}
+.sb-body{flex:1;min-width:0}
+.sb-t{font-size:14px;font-weight:700}
+.sb-s{font-size:13px;margin-top:2px}
+.sbanner.warn{background:#FFF7E6;border-left-color:#F2A100}
+.sbanner.warn .sb-ic{color:#F2A100}
+.sbanner.warn .sb-t{color:#7A4300}
+.sbanner.warn .sb-s{color:#8C5A14}
+.sbanner.err{background:#FDEEEE;border-left-color:#D93025}
+.sbanner.err .sb-ic{color:#D93025}
+.sbanner.err .sb-t{color:#8E1C14}
+.sbanner.err .sb-s{color:#A1352B}
+.sbanner.ok{background:#E9F7EF;border-left-color:#1E9E62}
+.sbanner.ok .sb-ic{color:#1E9E62}
+.sbanner.ok .sb-t{color:#0F5B3B}
+.sbanner.ok .sb-s{color:#256E4D}
+.stk{display:flex;align-items:center;gap:6px;margin-top:10px;padding:7px 9px;border-radius:5px;font-size:12px;line-height:1.35}
+.stk > .tx{flex:1;min-width:0}
+.stk .ic{flex:none;display:flex}
+.stk .ic svg{width:14px;height:14px}
+.stk-ok{background:#E7F6EE;color:#16835A;font-weight:600}
+.stk-warn{background:#FFF4E2;color:#A65800}
+.stk-oos{background:#FDECEC;color:#C62828}
+.stk-unval,.stk-fail{background:#EEF0F2;color:#5F6870}
+.stk-warn .ic{color:#F2A100}
+.stk-oos .ic{color:#D93025}
+.stk-unval .ic{color:#7A838B}
+.stk-remove{flex:none;color:#C62828;font-weight:700;text-decoration:underline;font-size:12px}
+.screen.locked .scroll .st-btn,.screen.locked .scroll .st-input,.screen.locked .scroll .trash,.screen.locked .scroll .stk-remove,.screen.locked .scroll .add-delivery,.screen.locked .scroll .sched-link{pointer-events:none;opacity:.5}
+.stk-row{display:flex;flex-direction:column;gap:2px;padding:8px 0;border-top:1px solid #F0F2F4;font-size:13px;text-align:left}
+.stk-row:first-child{border-top:0}
+.stk-row b{color:#222;font-size:13px}
 .nav{flex:none;height:62px;background:#F6F6F6;display:flex}
 .nav button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:#8B8B8B;font-size:12px;text-align:center}
 .nav button.active{color:var(--primary)}
@@ -233,7 +282,8 @@ textarea.instr:focus{border-color:var(--teal-border)}
 .as-row .l2{font-size:14px;color:var(--teal-text);margin-top:3px;font-weight:500}
 .as-row .l3{font-size:11.5px;color:#16835A;margin-top:3px;font-weight:600}
 .as-foot{padding:12px 16px 0}
-.sheet-box{position:relative;width:100%;background:#fff;border-radius:14px 14px 0 0;padding:8px 0 18px;animation:up .2s}
+.sheet-box{position:relative;width:100%;max-height:82%;overflow-y:auto;background:#fff;border-radius:14px 14px 0 0;padding:8px 0 18px;animation:up .2s}
+.sheet-h{padding:12px 16px 6px;font-size:11.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:#7A838B;background:#F6F8F9;border-top:1px solid #F0F2F4}
 .sheet-grip{width:40px;height:4px;border-radius:2px;background:#D5D9DD;margin:4px auto 10px}
 .sheet-t{font-size:16px;font-weight:700;padding:4px 16px 8px}
 .sheet-opt{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 16px;border-top:1px solid #F0F2F4;font-size:15px;text-align:left}
@@ -258,7 +308,7 @@ textarea.instr:focus{border-color:var(--teal-border)}
 .txt-btn:disabled{color:#BBB}
 
 /* Toast, loading, UAT */
-.toast{position:absolute;left:50%;bottom:150px;transform:translateX(-50%);background:#263238;color:#fff;padding:10px 14px;border-radius:8px;font-size:13px;z-index:80;max-width:86%;opacity:0;transition:opacity .2s;pointer-events:none;text-align:center;line-height:1.4}
+.toast{position:absolute;left:50%;bottom:250px;transform:translateX(-50%);background:#263238;color:#fff;padding:10px 14px;border-radius:8px;font-size:13px;z-index:80;max-width:86%;opacity:0;transition:opacity .2s;pointer-events:none;text-align:center;line-height:1.4}
 .toast.show{opacity:1}
 .toast.success{background:#11695F}
 .toast.error{background:#B3261E}
@@ -326,6 +376,12 @@ var I = {
   grid:'<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/></svg>',
   promo:'<svg width="26" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2.5" y="4.5" width="19" height="15" rx="1.5"/><path d="M14.6 9.6c-.5-.8-1.4-1.3-2.6-1.3-1.4 0-2.4.7-2.4 1.8 0 2.5 5 1.3 5 3.8 0 1.1-1 1.8-2.6 1.8-1.1 0-2.1-.5-2.6-1.3M12 6.8v10.4"/></svg>',
   cart:'<svg width="26" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M2 3h3l2.6 11a2 2 0 0 0 2 1.6h8.2a2 2 0 0 0 1.9-1.5L21.5 7H6.3" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/><circle cx="10" cy="20.2" r="1.9"/><circle cx="17.6" cy="20.2" r="1.9"/></svg>',
+  sbInfo:'<svg width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="currentColor"/><path d="M12 11v6" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="7.6" r="1.35" fill="#fff"/></svg>',
+  sbWarn:'<svg width="20" height="20" viewBox="0 0 24 24"><path d="M12 3.2 1.9 20.5h20.2z" fill="currentColor"/><path d="M12 9.5v5" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="17.6" r="1.25" fill="#fff"/></svg>',
+  sbError:'<svg width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="currentColor"/><path d="M8.5 8.5l7 7M15.5 8.5l-7 7" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>',
+  sbOk:'<svg width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="currentColor"/><path d="M7.5 12.4l3 3 6-6.4" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  sbClock:'<svg width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="currentColor"/><path d="M12 6.8V12l3.4 2.2" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  sbRefresh:'<svg width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="currentColor"/><path d="M16.6 10.2A5 5 0 0 0 7.6 9.6M7.4 13.8a5 5 0 0 0 9 .6" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/><path d="M7 6.8v3.1h3.1M17 17.2v-3.1h-3.1" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   search:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6E7479" stroke-width="2.2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg>',
   funnel:'<svg width="22" height="22" viewBox="0 0 24 24" fill="#111"><path d="M3 4h18l-7 8.5V20l-4-2v-5.5z"/></svg>',
   plusBig:'<svg width="22" height="22" viewBox="0 0 24 24"><path d="M12 4v16M4 12h16" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>',
@@ -366,7 +422,7 @@ var GST_RATE = 9;
 
 /* ---------- State ---------- */
 var STORE_KEY = 'rtsc-stock-status-demo-v1';
-function fresh(){ return { cart:Object.assign({},INITIAL_CART), order:INITIAL_ORDER.slice(), incoterm:DEFAULT_INCOTERM, schedules:[], nextOrderId:2677, draftOrderId:null }; }
+function fresh(){ return { cart:Object.assign({},INITIAL_CART), order:INITIAL_ORDER.slice(), incoterm:DEFAULT_INCOTERM, schedules:[], nextOrderId:2677, draftOrderId:null, stock:{ status:'none' }, atpMode:'normal', stockCase:'mixed' }; }
 function load(){
   try{ var s=JSON.parse(localStorage.getItem(STORE_KEY)); if(s && s.cart && Array.isArray(s.schedules)) return s; }catch(e){}
   return null;
@@ -383,6 +439,9 @@ function persist(){ syncOrder(); try{ localStorage.setItem(STORE_KEY, JSON.strin
 
 var S = load() || fresh();
 syncOrder();
+if(!S.stock || S.stock.status==='loading') S.stock={ status:'none' };   // a check cut off by a reload is dropped
+if(!S.atpMode) S.atpMode='normal';
+if(!S.stockCase) S.stockCase='mixed';
 var UI = { screen:'cart', prev:'cart', ov:null, rendered:null, q:'', filter:'all' };
 var E = null;            // schedule editor draft
 var scrollMem = {};
@@ -451,6 +510,211 @@ function setCartQty(k, n){
   applyCartQty(k,n);
 }
 function applyCartQty(k,n){ S.cart[k]=n; persist(); render(); }
+
+/* ---------- Check Stock (VN-85972) ----------
+   SAP / MuleSoft are not simulated: pressing Check Stock returns these numbers after a short delay.
+   avail   = fulfillable qty in base UOM (already net of SOs, blocked and expired stock)
+   factors = base units per UOM; a UOM without a factor -> "Unable to validate"
+   avail null / negative, or invalid material -> OUT_OF_STOCK                               */
+var STOCK = {
+  bs:{ base:'BAG', factors:{ BAG:1 },        avail:30 },
+  ag:{ base:'TIN', factors:{ TIN:1, CAR:6 }, avail:108 },
+  wf:{ base:'BAG', factors:{ BAG:1 },        avail:20 },
+  so:{ base:'BTL', factors:{ BTL:1 },        avail:50 },        // CAR conversion factor missing
+  cs:{ base:'BAG', factors:{ BAG:1 },        avail:null },      // SAP returns null
+  bb:{ base:'TUB', factors:{ TUB:1 },        invalid:true }     // material code not active in SAP
+};
+var STOCK_VALID_MS   = 60*1000;   // validity window (1 min for testing; BRD suggests 30 min)
+var STOCK_WARN_MS    = 30*1000;   // warn when 30 s are left
+var STOCK_TIMEOUT_MS = 5000;      // request timeout
+var STOCK_DELAY_MS   = 1500;      // normal response time
+var ATP_MODES = {
+  normal:      { label:'Normal',              sub:'Trả kết quả theo tồn kho giả sau ~1,5 giây' },
+  unavailable: { label:'Service unavailable', sub:'Trả lỗi "Stock check is currently unavailable"' },
+  timeout:     { label:'Timeout',             sub:'Không phản hồi, báo timeout sau 5 giây' }
+};
+
+function cartFp(){ return Object.keys(S.cart).sort().map(function(k){ return k+'='+S.cart[k]; }).join('|'); }
+
+/* One batch result for the whole cart. Lines of the same material share one stock pool,
+   taken in cart order (ACTIVE-GO: CAR first, then TIN). */
+/* Ready-made stock situations for the demo controls (profile tab).
+   mixed   = the per-product table above (default, shows every kind of result)
+   all     = plenty of stock for every line -> everything CONFIRMED
+   partial = about half of what the cart asks for, every line -> INSUFFICIENT (auto-adjusted)
+   oos     = no stock at all -> every line OUT_OF_STOCK                                      */
+var STOCK_CASES = {
+  mixed:   { label:'Mixed (mặc định)',   sub:'Mỗi sản phẩm một kết quả khác nhau, gồm cả lỗi dữ liệu' },
+  all:     { label:'All available',      sub:'Đủ hàng cho mọi dòng → tất cả Stock Confirmed' },
+  partial: { label:'Partially available', sub:'Chỉ còn khoảng một nửa số đặt → mọi dòng bị tự giảm' },
+  oos:     { label:'All out of stock',   sub:'Hết hàng toàn bộ → mọi dòng Out of stock' }
+};
+function stockFor(pid){
+  var st=STOCK[pid], c=S.stockCase||'mixed';
+  if(c==='mixed' || !st) return st;
+  var f=Object.assign({}, st.factors); if(pid==='so') f.CAR=4;           // the other cases have no data errors
+  var need=0; Object.keys(PRODUCTS[pid].uoms).forEach(function(u){ need+=(S.cart[keyOf(pid,u)]||0)*(f[u]||0); });
+  var avail;
+  if(c==='all') avail=need+100;
+  else if(c==='oos') avail=0;
+  else {                                   // partial: half of the first request, then fixed, so a re-run after auto-adjust confirms
+    S.pAvail=S.pAvail||{};
+    if(S.pAvail[pid]==null) S.pAvail[pid]=Math.max(1, Math.floor(need/2));
+    avail=S.pAvail[pid];
+  }
+  return { base:st.base, factors:f, avail:avail };
+}
+function atpResults(){
+  var res={};
+  cartLines().forEach(function(l){
+    var st=stockFor(l.pid);
+    var pool = st && !st.invalid && typeof st.avail==='number' && st.avail>=0 ? st.avail : null;
+    l.uoms.forEach(function(u){
+      var k=keyOf(l.pid,u), q=S.cart[k], r={ requested:q };
+      if(pool===null){ r.status='OUT_OF_STOCK'; r.avail=0; }
+      else if(!st.factors[u]){ r.status='UNVALIDATED'; }
+      else {
+        var f=st.factors[u], max=Math.floor(pool/f);
+        if(max>=q){ r.status='CONFIRMED'; r.avail=max; pool-=q*f; }
+        else if(max>0){ r.status='INSUFFICIENT'; r.avail=max; pool-=max*f; }
+        else { r.status='OUT_OF_STOCK'; r.avail=0; }
+      }
+      res[k]=r;
+    });
+  });
+  return res;
+}
+function checkStock(){
+  if(UI.checking || !cartLines().length) return;
+  var fp=cartFp(), mode=S.atpMode||'normal';
+  UI.checking=true; S.stock={ status:'loading' }; render();
+  var delay = mode==='timeout' ? STOCK_TIMEOUT_MS : mode==='unavailable' ? 1200 : STOCK_DELAY_MS;
+  setTimeout(function(){
+    UI.checking=false;
+    if(cartFp()!==fp){
+      S.stock={ status:'none' }; persist(); render();
+      toast('Your cart changed during the stock check. Please re-run Check Stock.','error'); return;
+    }
+    if(mode!=='normal'){ S.stock={ status:'error', kind:mode }; persist(); render(); return; }
+    var res=atpResults(), adjusted=0;
+    Object.keys(res).forEach(function(k){
+      var r=res[k];
+      if(r.status==='INSUFFICIENT'){ r.adjustedFrom=r.requested; S.cart[k]=r.avail; adjusted++; }   // auto-adjust to max
+    });
+    var all=Object.keys(res).every(function(k){ return res[k].status==='CONFIRMED'; });
+    S.stock={ status:'done', results:res, fp:fp, fpShown:cartFp(), checkedAt:Date.now(), allConfirmed:all };
+    persist(); render();
+  }, delay);
+}
+/* Current state of the check, derived from S.stock and the cart.
+   phase: none | loading | error | issues | ok | warn | expired | changed                    */
+function stockView(){
+  var st=S.stock||{ status:'none' }, v={ st:st, phase:'none', valid:false, show:false };
+  if(st.status==='loading') v.phase='loading';
+  else if(st.status==='error') v.phase='error';
+  else if(st.status==='done'){
+    if(cartFp()!==st.fpShown) v.phase='changed';               // user changed the cart after the check
+    else if(!st.allConfirmed){ v.phase='issues'; v.show=true; }
+    else {
+      v.left=st.checkedAt+STOCK_VALID_MS-Date.now();
+      if(v.left<=0) v.phase='expired';
+      else { v.phase = v.left<=STOCK_WARN_MS ? 'warn' : 'ok'; v.valid=true; v.show=true; }
+    }
+  }
+  return v;
+}
+function stockCounts(v){
+  var c={ adjusted:0, oos:0, unval:0 };
+  if(v.st.status!=='done') return c;
+  Object.keys(v.st.results).forEach(function(k){
+    if(!(S.cart[k]>0)) return;
+    var r=v.st.results[k];
+    if(r.adjustedFrom!=null) c.adjusted++;
+    else if(r.status==='OUT_OF_STOCK') c.oos++;
+    else if(r.status==='UNVALIDATED') c.unval++;
+  });
+  return c;
+}
+function nItems(n, one, many){ return n+' item'+(n>1?'s':'')+' '+(n>1?many:one); }
+function secs(ms){ return Math.max(0,Math.ceil(ms/1000)); }
+function mmss(ms){ var s=secs(ms); return Math.floor(s/60)+':'+pad(s%60); }
+function stockBanner(v){
+  if(!cartLines().length) return '';
+  // tone: warn (amber) | err (red, service errors only) | ok (green)
+  var b=function(tone, icon, title, sub, extra){
+    return '<div class="sbanner '+tone+'" id="stockBanner" data-phase="'+v.phase+'">'+
+      '<span class="sb-ic">'+icon+'</span><div class="sb-body"><div class="sb-t">'+title+'</div>'+
+      (sub?'<div class="sb-s">'+sub+'</div>':'')+(extra||'')+'</div></div>';
+  };
+  var updated=function(){ return b('warn', I.sbRefresh, 'Your cart has been updated.', 'Please re-run \'Check Stock\' before proceeding to checkout.'); };
+  switch(v.phase){
+    case 'error':
+      return v.st.kind==='timeout'
+        ? b('err', I.sbClock, 'Stock check timed out.', 'Please try again. You cannot proceed with your order until stock is confirmed.')
+        : b('err', I.sbError, 'Stock check is currently unavailable.', 'Please try again. If the problem persists, contact Trade Support. You cannot proceed with your order until stock is confirmed.');
+    case 'issues': {
+      var c=stockCounts(v);
+      if(!c.adjusted && !c.oos && !c.unval) return updated();
+      var lineCount=Object.keys(S.cart).filter(function(k){ return S.cart[k]>0; }).length;
+      if(c.oos===lineCount)      // every line in the cart is out of stock
+        return b('err', I.sbError, 'All items are out of stock.', 'Please remove all items from cart and contact Trade Support.');
+      // one message for every issue mix (insufficient / out of stock / unable to validate)
+      return b('warn', I.sbWarn, 'Some items are unavailable or not fully available.',
+        'Please remove out-of-stock items and review the adjusted quantities below.');
+    }
+    case 'changed': return updated();
+    case 'warn':    return b('warn', I.sbClock, 'Your stock check result will expire in <span id="stockLeft">'+secs(v.left)+'</span> seconds.', 'Please proceed to checkout or re-run Check Stock.');
+    case 'ok':      return b('ok', I.sbOk, 'Stock confirmed for all items.', 'You may proceed to checkout. (Valid for 1 minute.)');
+    case 'expired': return b('warn', I.sbClock, 'Your stock check has expired.', 'Please re-run Check Stock.');
+  }
+  return '';
+}
+function stockChip(k, u, v){
+  if(v.phase==='error') return '<div class="stk stk-fail" data-stock="'+k+'">Stock check failed</div>';
+  if(!v.show) return '';
+  var r=v.st.results[k]; if(!r) return '';
+  var rm='<button class="stk-remove" data-act="stockRemove" data-key="'+k+'">Remove</button>';
+  switch(r.status){
+    case 'CONFIRMED':    return '<div class="stk stk-ok" data-stock="'+k+'">✓ Stock Confirmed</div>';
+    case 'INSUFFICIENT': return '<div class="stk stk-warn" data-stock="'+k+'"><span class="ic">'+I.sbWarn+'</span><span class="tx"><b>Only '+r.avail+' '+u+' available</b> · adjusted from '+r.adjustedFrom+'</span></div>';
+    case 'OUT_OF_STOCK': return '<div class="stk stk-oos" data-stock="'+k+'"><span class="ic">'+I.sbError+'</span><span class="tx"><b>Out of stock</b></span>'+rm+'</div>';
+    case 'UNVALIDATED':  return '<div class="stk stk-unval" data-stock="'+k+'"><span class="ic">'+I.sbInfo+'</span><span class="tx"><b>Unable to validate</b> · contact Trade Support</span>'+rm+'</div>';
+  }
+  return '';
+}
+function stockTip(v){
+  if(v.phase==='loading') return 'Checking stock, please wait...';
+  if(v.phase==='issues')  return 'Please resolve the stock issues above and re-run Check Stock.';
+  return 'Please check stock availability before proceeding. Click the \'Check Stock\' button above.';
+}
+function showCheckoutTip(){
+  var tip=$('#coTip'); if(!tip) return;
+  tip.textContent=stockTip(stockView()); tip.classList.add('show');
+  clearTimeout(showCheckoutTip._t); showCheckoutTip._t=setTimeout(function(){ tip.classList.remove('show'); },2600);
+}
+function setAtpMode(m){ S.atpMode=m; persist(); toast('Kịch bản Check Stock: '+ATP_MODES[m].label,'success'); }
+function setStockCase(c){
+  S.stockCase=c; S.pAvail={}; S.stock={ status:'none' }; S.atpMode='normal';    // an old result no longer matches the new stock
+  persist(); render(); toast('Tồn kho: '+STOCK_CASES[c].label,'success');
+}
+function showStockTable(){
+  var cs=S.stockCase||'mixed';
+  if(cs!=='mixed'){
+    dialog('Mock stock: '+STOCK_CASES[cs].label, '<div class="stk-row"><span>'+STOCK_CASES[cs].sub+'.</span></div>'+
+      '<div class="stk-row"><span>Chọn "Mixed (mặc định)" để xem bảng tồn kho từng sản phẩm.</span></div>', [{ label:'Close' }]);
+    return;
+  }
+  var rows=CATALOG.map(function(pid){
+    var p=PRODUCTS[pid], st=STOCK[pid], v;
+    if(st.invalid) v='Material code invalid → Out of Stock';
+    else if(st.avail==null || st.avail<0) v='SAP returns null → Out of Stock';
+    else v=st.avail+' '+st.base+Object.keys(p.uoms).filter(function(u){ return u!==st.base; }).map(function(u){
+      return st.factors[u] ? ' (1 '+u+' = '+st.factors[u]+' '+st.base+')' : ' ('+u+': missing factor → Unable to validate)';
+    }).join('');
+    return '<div class="stk-row"><b>'+p.name+'</b><span>'+v+'</span></div>';
+  }).join('');
+  dialog('Mock stock (fulfillable)', rows, [{ label:'Close' }]);
+}
 
 /* ---------- Editor (Delivery Schedule screen) ---------- */
 function snap(s){ return { id:s.id, addressIdx:s.addressIdx, date:s.date, instruction:s.instruction, alloc:Object.assign({},s.alloc) }; }
@@ -556,7 +820,7 @@ function updateCart(){
 function submitOrder(){
   loading(900,'Submitting order...').then(function(){
     var id=S.draftOrderId;
-    S.cart={}; S.schedules=[]; S.incoterm=DEFAULT_INCOTERM; S.nextOrderId=id+1; S.draftOrderId=null;
+    S.cart={}; S.schedules=[]; S.incoterm=DEFAULT_INCOTERM; S.nextOrderId=id+1; S.draftOrderId=null; S.stock={ status:'none' };
     persist();
     dialog('Order Submitted','Order ID <b>'+id+'</b> has been submitted successfully.',[
       { label:'OK', kind:'primary', fn:function(){ go('cart'); } }
@@ -586,7 +850,7 @@ function navBar(active){
   }).join('')+'</nav>';
 }
 
-function cartProduct(l, mm, sync){
+function cartProduct(l, mm, sync, sv){
   var p=PRODUCTS[l.pid];
   var rows=l.uoms.map(function(u){
     var k=keyOf(l.pid,u), q=S.cart[k], pu=p.uoms[u], m=mm[k], sy=sync[k];
@@ -595,7 +859,7 @@ function cartProduct(l, mm, sync){
       '<div class="uom-label">UOM ('+u+')</div>'+
       '<div class="uom-price">'+money(pu.price)+(pu.list?' <s>'+money(pu.list)+'</s>':'')+'</div>'+
       '<div class="uom-total" data-line-total="'+k+'">Total: '+money(pu.price*q)+'</div>'+
-      '</div><div class="uom-right">'+stepper('cart',k,q,1,MAX_QTY)+un+'</div></div>';
+      '</div><div class="uom-right">'+stepper('cart',k,q,1,MAX_QTY)+un+'</div></div>'+stockChip(k,u,sv);
   }).join('<div class="uom-sep"></div>');
   var disc='';
   if(p.promo){ var d=productDiscount(l.pid,S.cart); if(d) disc='<div class="disc">'+I.discBlue+'<span data-discount="'+l.pid+'">'+p.promo.label+': '+money(-d)+'</span></div>'; }
@@ -613,8 +877,10 @@ function renderCart(){
   (UI.synced||[]).forEach(function(s){ if(sync[s.key]) sync[s.key].to=s.to; else sync[s.key]={ from:s.from, to:s.to }; });
   UI.synced=null;
   var hasUnalloc = list.some(function(m){ return m.diff>0; });
-  var canCheckout = lines.length>0 && S.schedules.length>0;
-  var h='<div class="screen" data-screen="cart"><div class="top"><div class="appbar"><h1>Cart</h1></div>';
+  var sv = stockView(); UI.stockPhase = sv.phase;
+  var canCheckout = lines.length>0 && sv.valid;          // gated by Check Stock only (no delivery schedule required)
+  var h='<div class="screen'+(sv.phase==='loading'?' locked':'')+'" data-screen="cart"><div class="top"><div class="appbar"><h1>Cart</h1></div>';
+  h+=stockBanner(sv);
   if(list.length) h+='<div class="banner" id="mismatchBanner">Some items have quantity mismatches between the cart and delivery schedule.</div>';
   h+='<div class="cust"><div><span class="k">Customer Name:</span> <b>'+CUSTOMER.name+'</b></div><div><span class="k">Address:</span> <b>'+CUSTOMER.addr+'</b></div></div></div>';
   h+='<div class="scroll">';
@@ -622,7 +888,7 @@ function renderCart(){
     h+='<div class="empty">'+I.cartBig+'<div class="e-t">Your cart is empty</div><div class="e-s">Demo: khôi phục giỏ hàng ban đầu để chạy lại luồng.</div>'+
        '<button class="btn-outline" style="margin-top:18px" data-act="restoreCart">Khôi phục giỏ hàng demo</button></div>';
   } else {
-    h+=lines.map(function(l){ return cartProduct(l,mm,sync); }).join('');
+    h+=lines.map(function(l){ return cartProduct(l,mm,sync,sv); }).join('');
     h+='<div class="sec-head">Delivery Schedule</div><div class="sec-body">';
     if(S.schedules.length){
       h+=S.schedules.map(function(s,i){
@@ -638,7 +904,11 @@ function renderCart(){
   h+='</div>';
   h+='<div class="footer"><div class="total-row"><div><div class="t-label">Total:</div><div class="t-items" id="itemCount">'+t.items+' items</div></div>'+
      '<div class="t-val" id="cartTotal">'+money(t.total)+'</div></div>'+
-     '<button class="btn-primary" data-act="checkout" id="checkoutBtn"'+(canCheckout?'':' disabled')+'>Check Out</button></div>';
+     (sv.valid ? '<div class="stock-line'+(sv.phase==='warn'?' warn':'')+'" id="stockLine">✓ Stock confirmed · valid for <span id="stockTimer">'+mmss(sv.left)+'</span></div>' : '')+
+     '<button class="btn-stock'+(sv.phase==='error'?' err':'')+'" data-act="checkStock" id="checkStockBtn"'+(lines.length && sv.phase!=='loading'?'':' disabled')+'>'+
+       (sv.phase==='loading' ? '<span class="spin"></span>Checking stock...' : sv.phase==='error' ? 'Retry Check Stock' : 'Check Stock')+'</button>'+
+     '<div class="co-wrap"><div class="tip" id="coTip" role="tooltip"></div>'+
+     '<button class="btn-primary'+(canCheckout?'':' is-off')+'" data-act="checkout" id="checkoutBtn" aria-disabled="'+(!canCheckout)+'">Check Out</button></div></div>';
   h+=navBar()+'</div>';
   return h;
 }
@@ -862,6 +1132,7 @@ function renderOverlay(){
   } else if(o.kind==='sheet'){
     ov.innerHTML='<div class="ov sheet"><div class="ov-bg" data-act="ovClose"></div><div class="sheet-box" role="dialog" aria-modal="true"><div class="sheet-grip"></div><div class="sheet-t">'+o.title+'</div>'+
       o.options.map(function(op,i){
+        if(op.head) return '<div class="sheet-h">'+op.head+'</div>';
         return '<button class="sheet-opt'+(op.selected?' sel':'')+'" data-act="sheetOpt" data-i="'+i+'"><span>'+op.label+(op.sub?'<span class="s">'+op.sub+'</span>':'')+'</span>'+(op.selected?I.check:'')+'</button>';
       }).join('')+'</div></div>';
   } else if(o.kind==='cal'){
@@ -933,20 +1204,44 @@ phone.addEventListener('click', function(e){
     }
     case 'addDelivery': loading(600,'Loading...').then(function(){ openEditor(-1,true); }); break;
     case 'openSched': openEditor(idx,false); break;
-    case 'checkout': checkout(); break;
+    case 'checkStock': checkStock(); break;
+    case 'checkout':
+      if(!stockView().valid){ render(); showCheckoutTip(); break; }    // re-render: the result may have just expired
+      checkout(); break;
+    case 'stockRemove': {
+      if(allocated(k)>0){
+        dialog('Cannot Remove Item','This item is currently assigned to a delivery schedule.<br><br>Please remove it from the delivery schedule first.',[
+          { label:'Confirm', kind:'danger' }
+        ]);
+        break;
+      }
+      delete S.cart[k]; cleanupSchedules();
+      if(S.stock && S.stock.status==='done') S.stock.fpShown=cartFp();   // keep the other results on screen
+      persist(); render(); bumpBadge(); toast('Item removed from cart');
+      break;
+    }
     case 'restoreCart':
-      S.cart=Object.assign({},INITIAL_CART); S.order=INITIAL_ORDER.slice(); S.schedules=[]; S.incoterm=DEFAULT_INCOTERM; S.draftOrderId=null;
+      S.cart=Object.assign({},INITIAL_CART); S.order=INITIAL_ORDER.slice(); S.schedules=[]; S.incoterm=DEFAULT_INCOTERM; S.draftOrderId=null; S.stock={ status:'none' };
       persist(); render(); bumpBadge(); toast('Đã khôi phục giỏ hàng demo','success'); break;
     case 'nav': {
       var tab=el.dataset.tab;
       if(tab==='cart'){ if(UI.screen!=='cart'){ go('cart'); } break; }
       if(tab==='category'){ if(UI.screen!=='results'){ UI.prev=UI.screen; go('results'); } break; }
       if(tab==='profile'){
-        sheet('Demo controls',[
-          { label:'Đặt lại toàn bộ dữ liệu demo', sub:'Giỏ hàng ban đầu, xoá lịch giao, Order ID về 2677', fn:function(){
-              S=fresh(); E=null; persist(); go('cart'); bumpBadge(); toast('Đã đặt lại dữ liệu demo','success');
-          } }
-        ]);
+        var opts=[{ head:'Tình huống tồn kho' }];
+        Object.keys(STOCK_CASES).forEach(function(c){
+          opts.push({ label:STOCK_CASES[c].label, sub:STOCK_CASES[c].sub, selected:(S.stockCase||'mixed')===c, fn:function(){ setStockCase(c); } });
+        });
+        opts.push({ head:'Phản hồi của dịch vụ Check Stock' });
+        Object.keys(ATP_MODES).forEach(function(m){
+          opts.push({ label:ATP_MODES[m].label, sub:ATP_MODES[m].sub, selected:S.atpMode===m, fn:function(){ setAtpMode(m); } });
+        });
+        opts.push({ head:'Khác' });
+        opts.push({ label:'Xem tồn kho giả', sub:'Số lượng còn hàng của từng sản phẩm', fn:showStockTable });
+        opts.push({ label:'Đặt lại toàn bộ dữ liệu demo', sub:'Giỏ hàng ban đầu, xoá lịch giao và kết quả Check Stock, Order ID về 2677', fn:function(){
+            S=fresh(); E=null; UI.checking=false; persist(); go('cart'); bumpBadge(); toast('Đã đặt lại dữ liệu demo','success');
+        } });
+        sheet('Demo controls', opts);
         break;
       }
       toast('Bản demo này chỉ mô phỏng luồng Cart & Delivery Schedule'); break;
@@ -1043,6 +1338,22 @@ phone.addEventListener('keydown', function(e){
 phone.addEventListener('focusin', function(e){
   if(e.target.classList && e.target.classList.contains('st-input')) setTimeout(function(){ try{ e.target.select(); }catch(x){} },0);
 });
+
+/* Validity countdown: update the timer text every tick; re-render when the phase changes
+   (ok -> warn -> expired). Skipped while the user is typing a quantity. */
+setInterval(function(){
+  if(UI.screen!=='cart') return;
+  var v=stockView();
+  if(v.phase!==UI.stockPhase){
+    var a=document.activeElement;
+    if(!(a && a.classList && a.classList.contains('st-input'))) render();
+    return;
+  }
+  if(v.valid){
+    var t=$('#stockTimer'); if(t) t.textContent=mmss(v.left);
+    var s=$('#stockLeft');  if(s) s.textContent=secs(v.left);
+  }
+}, 250);
 
 render();
 })();
