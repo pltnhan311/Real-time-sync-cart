@@ -1,0 +1,1434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#064E57">
+<title>Cart – Delivery Schedule Sync (UAT)</title>
+<style>
+:root{
+  --primary:#064E57;
+  --primary-2:#0B6B73;
+  --teal-text:#0A5C66;
+  --teal-border:#2F8F93;
+  --teal-bg:#EAF7F7;
+  --section:#E6EBEF;
+  --sep:#E8ECEF;
+  --danger:#E5484D;
+  --danger-bg:#FDECEC;
+  --warn-bg:#FFF8E7;
+  --warn:#E07A00;
+  --muted:#8A8F94;
+  --text:#1F2328;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  font-family:Inter,Roboto,"Segoe UI",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif;
+  color:var(--text);background:#D9E0E5;font-size:14px;
+  display:flex;align-items:center;justify-content:center;
+}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;text-align:inherit}
+button:disabled{cursor:default}
+input,textarea{font:inherit;color:inherit}
+.phone{
+  position:relative;width:390px;height:min(844px,calc(100vh - 32px));
+  background:#fff;border-radius:28px;overflow:hidden;
+  box-shadow:0 20px 60px rgba(0,0,0,.25);
+}
+@media (max-width:500px){
+  body{background:#fff}
+  .phone{width:100%;height:100vh;height:100dvh;border-radius:0;box-shadow:none}
+}
+#app,.screen{position:absolute;inset:0}
+.screen{display:flex;flex-direction:column;background:#fff}
+.top{flex:none;background:#fff;position:relative;z-index:2}
+.scroll{flex:1;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;position:relative}
+.scroll::-webkit-scrollbar{width:0;height:0}
+
+/* App bar */
+.appbar{height:56px;margin-top:26px;display:flex;align-items:center;justify-content:center;position:relative}
+.appbar h1{font-size:18px;font-weight:700;letter-spacing:.1px}
+.appbar .back{position:absolute;left:6px;top:8px;width:40px;height:40px;display:grid;place-items:center;color:#333}
+.appbar .actions{position:absolute;right:10px;top:12px;display:flex;gap:12px}
+.icon-btn{width:32px;height:32px;border-radius:5px;display:grid;place-items:center;color:#fff}
+.icon-btn.red{background:var(--danger)}
+.icon-btn.add{background:var(--primary)}
+.icon-btn:disabled{background:#D2D2D2}
+.icon-btn.red:disabled{background:#F2B8BA}
+
+/* Cart header blocks */
+.banner{background:var(--warn-bg);color:var(--warn);font-weight:600;padding:11px 12px;font-size:13.5px;line-height:1.38}
+.cust{background:var(--teal-bg);padding:12px;font-size:13px;line-height:1.5}
+.cust .k{color:#8A9196}
+.cust b{font-weight:700;color:#222}
+
+/* Product (cart) */
+.prod{padding:12px 16px 16px;border-bottom:4px solid var(--sep)}
+.prod-head{display:flex;align-items:center;gap:10px}
+.trash{width:32px;height:32px;border-radius:5px;background:var(--danger-bg);color:var(--danger);display:grid;place-items:center;flex:none}
+.img{width:65px;height:65px;border:1.5px solid #E4E4E4;border-radius:4px;display:grid;place-items:center;position:relative;flex:none;background:#fff}
+.promo-corner{position:absolute;left:-5px;top:3px;width:26px;height:22px;background:#0E7C7B;border-radius:0 11px 11px 0;display:grid;place-items:center}
+.promo-corner::after{content:"";position:absolute;left:0;bottom:-4px;border-top:4px solid #0A4F4E;border-left:5px solid transparent}
+.pinfo{flex:1;min-width:0;align-self:flex-start;padding-top:2px}
+.pname{font-size:15px;line-height:1.2;color:#222}
+.pbrand{font-size:12.5px;color:#999;margin-top:5px}
+.halal{display:inline-flex;align-items:center;gap:4px;margin-top:6px;padding:2px 7px 2px 4px;border:1px solid #CFE9E9;background:var(--teal-bg);border-radius:4px;color:var(--primary-2);font-size:13px;font-weight:500}
+.indent{margin-left:42px}
+.pack{margin-top:14px;border:1.5px solid #E6E6E6;border-radius:4px;padding:7px 8px;display:flex;align-items:center;gap:8px;color:var(--teal-text);font-size:13px;font-weight:500}
+.pack svg{flex:none}
+.uom-row{display:flex;justify-content:space-between;align-items:flex-start;padding:16px 0 4px;gap:8px}
+.uom-sep{height:1px;background:#E2E5E8;margin-top:8px}
+.uom-label{font-size:13px;color:#333}
+.uom-price{font-size:15.5px;color:var(--teal-text);font-weight:500;margin-top:5px}
+.uom-price s{color:#7B8A8C;font-size:13px;margin-left:4px;font-weight:400}
+.uom-total{display:inline-block;margin-top:8px;background:var(--teal-bg);color:var(--teal-text);font-size:15px;font-weight:500;padding:4px 5px;border-radius:4px}
+.uom-right{display:flex;flex-direction:column;align-items:center;flex:none}
+.stepper{display:flex;gap:8px;align-items:center}
+.st-btn{width:36px;height:36px;border-radius:4px;background:var(--primary);color:#fff;display:grid;place-items:center;flex:none}
+.st-btn:disabled{background:#A7BCBF}
+.st-input{width:48px;height:38px;border:1.2px solid #E2E2E2;border-radius:4px;text-align:center;font-size:17px;outline:none;background:#fff}
+.st-input:focus{border-color:var(--teal-border)}
+.unalloc{color:var(--warn);font-weight:700;font-size:13px;margin-top:8px;white-space:nowrap}
+.disc{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:13px;margin-top:12px}
+.disc svg{flex:none}
+
+/* Section */
+.sec-head{background:var(--section);padding:14px 16px;font-weight:700;font-size:15.5px}
+.sec-body{padding:12px 16px 20px}
+.add-delivery{width:100%;height:46px;border-radius:6px;background:var(--teal-bg);display:flex;align-items:center;justify-content:center;gap:10px;font-size:16px;color:#222}
+.sched-link{width:100%;display:flex;align-items:center;justify-content:space-between;padding:8px 0;color:var(--primary-2)}
+.sched-link + .sched-link{border-top:1px solid #EEF1F3}
+.sl-title{display:block;font-size:16px;font-weight:500}
+.sl-sub{display:block;font-size:12px;color:var(--muted);margin-top:2px}
+
+/* Footer + nav */
+.footer{flex:none;padding:14px 16px 12px;background:#fff;box-shadow:0 -6px 14px rgba(0,0,0,.06);position:relative;z-index:2}
+.total-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.t-label{font-size:14px}
+.t-items{font-size:11.5px;color:var(--muted);margin-top:2px}
+.t-val{font-size:20px;font-weight:600}
+.btn-primary{width:100%;height:44px;border-radius:6px;background:var(--primary);color:#fff;font-size:16px;text-align:center;transition:background .2s}
+.btn-primary:disabled{background:#E4E4E4;color:#fff}
+.btn-primary.is-off{background:#E4E4E4;color:#fff;cursor:default}
+
+/* Check Stock (VN-85972) */
+.btn-stock{width:100%;height:42px;margin-bottom:8px;border-radius:6px;border:1.5px solid var(--primary);color:var(--primary);background:#fff;font-size:15.5px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-stock:disabled{border-color:#D5DADE;color:#AEB4B8}
+.btn-stock.err{border-color:#C62828;color:#C62828;background:#FFF6F6}
+.btn-stock .spin{width:16px;height:16px;border:2px solid #CFE0E2;border-top-color:var(--primary);border-radius:50%;animation:spin .8s linear infinite}
+.stock-line{display:flex;align-items:center;gap:4px;font-size:12.5px;font-weight:600;color:#16835A;margin:-4px 0 10px}
+.stock-line.warn{color:var(--warn)}
+.stock-line span{font-variant-numeric:tabular-nums}
+.co-wrap{position:relative}
+.tip{position:absolute;left:50%;bottom:calc(100% + 10px);transform:translateX(-50%);width:88%;background:#263238;color:#fff;font-size:12.5px;line-height:1.4;padding:9px 11px;border-radius:7px;text-align:center;opacity:0;pointer-events:none;transition:opacity .15s;z-index:5}
+.tip::after{content:"";position:absolute;left:50%;top:100%;transform:translateX(-50%);border:6px solid transparent;border-top-color:#263238}
+.tip.show{opacity:1}
+.sbanner{display:flex;align-items:flex-start;gap:10px;padding:12px 14px 12px 12px;border-left:4px solid;line-height:1.4}
+.sbanner + .banner{border-top:1px solid rgba(0,0,0,.06)}
+.sb-ic{flex:none;width:20px;height:20px;margin-top:1px}
+.sb-ic svg{display:block}
+.sb-body{flex:1;min-width:0}
+.sb-t{font-size:14px;font-weight:700}
+.sb-s{font-size:13px;margin-top:2px}
+.sbanner.warn{background:#FFF7E6;border-left-color:#F2A100}
+.sbanner.warn .sb-ic{color:#F2A100}
+.sbanner.warn .sb-t{color:#7A4300}
+.sbanner.warn .sb-s{color:#8C5A14}
+.sbanner.err{background:#FDEEEE;border-left-color:#D93025}
+.sbanner.err .sb-ic{color:#D93025}
+.sbanner.err .sb-t{color:#8E1C14}
+.sbanner.err .sb-s{color:#A1352B}
+.sbanner.ok{background:#E9F7EF;border-left-color:#1E9E62}
+.sbanner.ok .sb-ic{color:#1E9E62}
+.sbanner.ok .sb-t{color:#0F5B3B}
+.sbanner.ok .sb-s{color:#256E4D}
+.stk{display:flex;align-items:center;gap:6px;margin-top:10px;padding:7px 9px;border-radius:5px;font-size:12px;line-height:1.35}
+.stk > .tx{flex:1;min-width:0}
+.stk .ic{flex:none;display:flex}
+.stk .ic svg{width:14px;height:14px}
+.stk-ok{background:#E7F6EE;color:#16835A;font-weight:600}
+.stk-warn{background:#FFF4E2;color:#A65800}
+.stk-oos{background:#FDECEC;color:#C62828}
+.stk-unval,.stk-fail{background:#EEF0F2;color:#5F6870}
+.stk-warn .ic{color:#F2A100}
+.stk-oos .ic{color:#D93025}
+.stk-unval .ic{color:#7A838B}
+.stk-remove{flex:none;color:#C62828;font-weight:700;text-decoration:underline;font-size:12px}
+.screen.locked .scroll .st-btn,.screen.locked .scroll .st-input,.screen.locked .scroll .trash,.screen.locked .scroll .stk-remove,.screen.locked .scroll .add-delivery,.screen.locked .scroll .sched-link{pointer-events:none;opacity:.5}
+.screen.locked .scroll .is-checking{opacity:1}
+.spin-sm{width:18px;height:18px;flex:none;border:2.4px solid #CFE0E2;border-top-color:var(--primary);border-radius:50%;animation:spin .8s linear infinite}
+.add-delivery.is-checking{color:var(--primary);font-weight:600}
+.sched-stock{display:flex;align-items:center;gap:6px;margin:0 16px 10px;padding:7px 10px;border-radius:5px;font-size:12.5px;font-weight:600;background:#E7F6EE;color:#16835A}
+.sched-stock.warn{background:#FFF4E2;color:#A65800}
+.sched-stock.off{background:#FDECEC;color:#C62828}
+.sched-stock span{font-variant-numeric:tabular-nums}
+.stk-row{display:flex;flex-direction:column;gap:2px;padding:8px 0;border-top:1px solid #F0F2F4;font-size:13px;text-align:left}
+.stk-row:first-child{border-top:0}
+.stk-row b{color:#222;font-size:13px}
+.nav{flex:none;height:62px;background:#F6F6F6;display:flex}
+.nav button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:#8B8B8B;font-size:12px;text-align:center}
+.nav button.active{color:var(--primary)}
+.nav .ic{position:relative;height:24px}
+.badge{position:absolute;top:-6px;left:-6px;min-width:16px;height:16px;border-radius:8px;background:var(--primary);color:#fff;font-size:10px;display:grid;place-items:center;padding:0 3px;border:1.5px solid #F6F6F6}
+.badge.bump{animation:bump .35s}
+@keyframes bump{50%{transform:scale(1.35)}}
+
+/* Empty */
+.empty{padding:48px 24px;text-align:center;color:var(--muted)}
+.empty .e-t{font-size:16px;color:#333;font-weight:600;margin-top:12px}
+.empty .e-s{font-size:13px;margin-top:6px}
+
+/* Schedule editor */
+.gapbar{height:6px;background:var(--section)}
+.field-wrap{padding:14px 16px 12px}
+.flabel{font-size:15px;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.flabel.mt{margin-top:18px}
+.req{color:var(--danger);font-size:16px;margin-left:-4px;align-self:flex-start}
+.select{width:100%;min-height:40px;border:1.5px solid var(--teal-border);border-radius:6px;display:flex;align-items:center;justify-content:space-between;padding:0 10px;font-size:15px;text-align:left;background:#fff}
+.select.disabled{background:#CFCFCF;border-color:#E2E2E2}
+.select.date{background:var(--teal-bg)}
+.select.invalid{border-color:var(--danger)}
+.acc-head{background:var(--teal-bg);min-height:54px;padding:8px 16px;display:flex;align-items:center;justify-content:space-between;width:100%;font-size:16px;border-bottom:1px solid #DCE6E8;color:#222}
+.acc-head + .acc-head{margin-top:0}
+.acc-head .chev{color:var(--primary)}
+.acc-sub{display:block;font-size:12px;color:var(--muted);margin-top:2px}
+.chip{display:inline-block;font-size:11px;padding:2px 7px;border-radius:10px;margin-left:8px;vertical-align:2px;font-weight:600}
+.chip.warn{background:#FFEFD2;color:var(--warn)}
+.chip.ok{background:#DDF3EA;color:#16835A}
+.acc-body{padding:14px 16px 4px;border-bottom:1px solid #DCE6E8}
+.addr-card{border:1.5px solid var(--teal-border);border-radius:6px;padding:10px;display:flex;align-items:center;gap:8px;width:100%;text-align:left;background:#fff}
+.addr-txt{flex:1;min-width:0}
+.addr-name{font-weight:700;font-size:14px}
+.addr-line{color:var(--teal-text);font-size:14px;margin-top:4px;line-height:1.35}
+textarea.instr{width:100%;height:64px;border:1.2px solid #E2E2E2;border-radius:6px;padding:10px;font-size:14px;resize:none;outline:none}
+textarea.instr:focus{border-color:var(--teal-border)}
+.err{color:var(--danger);font-size:12px;margin-top:6px}
+.sp{margin:18px -16px 0;padding:14px 16px 4px;border-top:4px solid var(--sep)}
+.sp-head{display:flex;gap:12px;align-items:flex-start}
+.reset{background:var(--teal-bg);color:var(--teal-text);padding:9px 14px;border-radius:5px;font-size:15px;flex:none}
+.sp .pack{margin-top:12px}
+.uom-box{border:1.5px solid #E6E6E6;border-radius:5px;padding:9px 8px 9px 10px;display:flex;justify-content:space-between;align-items:center;margin-top:10px}
+.uom-box .ul{font-size:15.5px}
+.avail{font-size:13.5px;margin:8px 0 4px}
+.avail b{color:var(--teal-text);font-weight:500}
+.avail.zero b{color:var(--muted)}
+.avail-note{font-size:12px;color:#1F6FB2;background:#EAF3FC;border-radius:4px;padding:5px 8px;margin:2px 0 6px;line-height:1.35}
+.avail-note.over{color:var(--warn);background:#FFF4E2}
+.uom-row.flash .uom-total,.uom-row.flash .st-input{animation:flash 2.2s ease-out}
+@keyframes flash{0%,35%{background:#FFF1C7}}
+.add-delivery.more{margin-top:12px;height:42px;font-size:15px}
+.btn-outline{width:100%;height:44px;border:1.5px solid var(--teal-border);background:var(--teal-bg);color:var(--teal-text);border-radius:6px;font-size:16px;display:flex;align-items:center;justify-content:center;gap:6px}
+.btn-outline:disabled{opacity:.6}
+.save-wrap{margin:0 -16px;padding:14px 16px 16px;border-top:4px solid var(--sep)}
+.ed-empty{padding:36px 24px;text-align:center;color:var(--muted);font-size:13.5px}
+
+/* Order confirmation */
+.oc-hero{margin:14px 16px 4px;padding:14px;border-radius:8px;background:var(--teal-bg);display:flex;align-items:center;justify-content:space-between}
+.oc-id{font-size:16px}
+.oc-id b{font-size:18px;color:var(--primary)}
+.card{margin:12px 16px;border:1px solid #E3E8EC;border-radius:8px;overflow:hidden}
+.card-h{padding:10px 12px;background:var(--section);font-weight:700;font-size:14px}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:9px 12px;font-size:13.5px;border-top:1px solid #F0F2F4}
+.card-h + .kv{border-top:0}
+.kv .k{color:var(--muted);flex:none}
+.kv .v{text-align:right;font-weight:500}
+.kv.total{font-size:16px;font-weight:700}
+.kv.total .k{color:var(--text)}
+.oc-sched{padding:10px 12px;border-top:1px solid #F0F2F4;font-size:13.5px;line-height:1.45}
+.card-h + .oc-sched{border-top:0}
+.oc-sched .t{font-weight:700;color:var(--primary-2);margin-bottom:2px}
+.oc-sched .m{color:var(--muted)}
+.oc-item{padding:10px 12px;border-top:1px solid #F0F2F4}
+.card-h + .oc-item{border-top:0}
+.oc-item .n{font-size:14px;font-weight:600}
+.oc-item .r{display:flex;justify-content:space-between;font-size:13px;margin-top:5px;color:#444}
+.oc-item .d{font-size:12.5px;color:var(--muted);margin-top:5px;display:flex;align-items:center;gap:6px}
+
+/* Overlay: dialog / sheet / calendar */
+#ov:empty{display:none}
+#ov.still .ov-bg,#ov.still .dialog,#ov.still .sheet-box,#ov.still .cal{animation:none}
+.ov{position:absolute;inset:0;z-index:50;display:flex;align-items:center;justify-content:center}
+.ov.sheet{align-items:flex-end}
+.ov-bg{position:absolute;inset:0;background:rgba(0,0,0,.45);animation:fade .15s}
+@keyframes fade{from{opacity:0}}
+@keyframes up{from{transform:translateY(30px);opacity:0}}
+.dialog{position:relative;width:78%;max-width:300px;max-height:80%;overflow:auto;background:#fff;border-radius:8px;padding:20px 20px 18px;animation:up .18s}
+.dlg-t{font-size:16.5px;font-weight:700;margin-bottom:14px;text-align:center;color:#222}
+.dlg-b{font-size:14px;line-height:1.5;color:#7A7F84}
+.dlg-a{display:flex;flex-direction:column;gap:12px;margin-top:20px}
+.dbtn{width:100%;height:42px;border-radius:5px;font-size:15px;text-align:center}
+.dbtn.ghost{border:1px solid #D9DDE0;color:#6B7075;background:#fff}
+.dbtn.primary{background:var(--primary);color:#fff}
+.dbtn.danger{background:#EB5757;color:#fff}
+.ua-line{padding-left:2px}
+
+/* Results (Category) */
+.search-row{display:flex;gap:10px;padding:10px 12px 12px}
+.search{flex:1;min-width:0;height:44px;background:var(--teal-bg);border:1px solid #CFE6E6;border-radius:6px;display:flex;align-items:center;gap:8px;padding:0 12px;cursor:text}
+.search input{flex:1;min-width:0;border:0;background:transparent;outline:none;font-size:14px}
+.search input::placeholder{color:#8A9196}
+.filter-btn{width:44px;height:44px;border:1px solid #D9DDE0;border-radius:6px;display:grid;place-items:center;position:relative;flex:none;background:#fff}
+.filter-btn .dot{position:absolute;top:6px;right:6px;width:8px;height:8px;border-radius:50%;background:var(--danger)}
+.rcard{padding:14px 16px 16px;border-top:8px solid var(--sep)}
+.rhead{display:flex;gap:12px;align-items:flex-start}
+.radd{width:40px;height:40px;border-radius:4px;background:var(--primary);color:#fff;display:grid;place-items:center;flex:none}
+.rpack{display:flex;align-items:center;gap:6px;color:var(--teal-text);font-size:12.5px;font-weight:500;margin-top:12px}
+.rpack svg{width:16px;height:16px;flex:none}
+.rprice{margin-top:10px;border:1px solid #E3E6E8;border-radius:5px;display:grid;grid-template-columns:1fr 1fr;padding:10px 0}
+.rprice > div{padding:0 10px;font-size:13.5px;white-space:nowrap}
+.rprice > div + div{border-left:1px solid #E3E6E8}
+.rprice b{color:var(--teal-text);font-weight:600}
+.rprice s,.as-row s{color:#888;font-size:12px;margin-left:3px}
+.incart{font-size:12px;color:#16835A;margin-top:8px;font-weight:600}
+.r-empty{padding:48px 24px;text-align:center;color:var(--muted)}
+.add-sheet .as-head{display:flex;gap:12px;padding:0 16px 12px;align-items:flex-start}
+.as-pack{font-size:12px;color:var(--teal-text);margin-top:4px}
+.as-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 16px;border-top:1px solid #F0F2F4}
+.as-row .l1{font-size:14.5px}
+.as-row .l2{font-size:14px;color:var(--teal-text);margin-top:3px;font-weight:500}
+.as-row .l3{font-size:11.5px;color:#16835A;margin-top:3px;font-weight:600}
+.as-foot{padding:12px 16px 0}
+.sheet-box{position:relative;width:100%;max-height:82%;overflow-y:auto;background:#fff;border-radius:14px 14px 0 0;padding:8px 0 18px;animation:up .2s}
+.sheet-h{padding:12px 16px 6px;font-size:11.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:#7A838B;background:#F6F8F9;border-top:1px solid #F0F2F4}
+.sheet-grip{width:40px;height:4px;border-radius:2px;background:#D5D9DD;margin:4px auto 10px}
+.sheet-t{font-size:16px;font-weight:700;padding:4px 16px 8px}
+.sheet-opt{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 16px;border-top:1px solid #F0F2F4;font-size:15px;text-align:left}
+.sheet-opt .s{display:block;font-size:12.5px;color:var(--teal-text);margin-top:3px}
+.sheet-opt.sel{color:var(--primary);font-weight:600}
+.cal{position:relative;width:322px;max-width:92%;background:#fff;border-radius:10px;overflow:hidden;animation:up .18s}
+.cal-h{background:var(--primary);color:#fff;padding:14px 18px}
+.cal-h small{opacity:.8;font-size:11px;letter-spacing:1px;text-transform:uppercase}
+.cal-h div{font-size:24px;font-weight:600;margin-top:6px}
+.cal-nav{display:flex;align-items:center;justify-content:space-between;padding:10px 10px 2px}
+.cal-nav b{font-size:14.5px}
+.cal-nav button{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;color:#333}
+.cal-nav button:disabled{color:#CCC}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);padding:0 10px;row-gap:2px}
+.cal-grid .wd{font-size:12px;color:var(--muted);text-align:center;padding:6px 0}
+.day{height:38px;width:38px;border-radius:50%;margin:auto;font-size:13.5px;text-align:center}
+.day:disabled{color:#C4C4C4}
+.day.today{border:1px solid var(--primary)}
+.day.sel{background:var(--primary);color:#fff}
+.cal-act{display:flex;justify-content:flex-end;gap:6px;padding:8px 12px 12px}
+.txt-btn{color:var(--primary-2);font-weight:600;padding:8px 14px;border-radius:4px;font-size:14px}
+.txt-btn:disabled{color:#BBB}
+
+/* Toast, loading, UAT */
+.toast{position:absolute;left:50%;bottom:250px;transform:translateX(-50%);background:#263238;color:#fff;padding:10px 14px;border-radius:8px;font-size:13px;z-index:80;max-width:86%;opacity:0;transition:opacity .2s;pointer-events:none;text-align:center;line-height:1.4}
+.toast.show{opacity:1}
+.toast.success{background:#11695F}
+.toast.error{background:#B3261E}
+.loading{position:absolute;inset:0;z-index:90;background:rgba(255,255,255,.55);display:none;align-items:center;justify-content:center}
+.loading.show{display:flex}
+.spin-box{background:#fff;border-radius:12px;padding:18px 22px;box-shadow:0 6px 24px rgba(0,0,0,.15);display:flex;flex-direction:column;align-items:center;gap:10px;font-size:13px;color:#555}
+.spinner{width:30px;height:30px;border:3px solid #D6E7E8;border-top-color:var(--primary);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.uat{position:absolute;right:0;bottom:0;width:76px;height:76px;overflow:hidden;z-index:100;pointer-events:none}
+.uat span{position:absolute;right:-34px;bottom:16px;width:140px;transform:rotate(-45deg);background:#2B2B2B;color:#fff;font-weight:800;font-size:13px;text-align:center;padding:6px 0;letter-spacing:.5px}
+</style>
+</head>
+<body>
+<div class="phone" id="phone">
+  <div id="app"></div>
+  <div id="ov"></div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <div class="loading" id="loading"><div class="spin-box"><div class="spinner"></div><span id="loadingText">Loading...</span></div></div>
+  <div class="uat"><span>UAT</span></div>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+/* ---------- Helpers ---------- */
+var $ = function(s){ return document.querySelector(s); };
+var pad = function(n){ return String(n).padStart(2,'0'); };
+var iso = function(d){ return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); };
+var parseIso = function(s){ var p=s.split('-').map(Number); return new Date(p[0],p[1]-1,p[2]); };
+var fmtDate = function(s){ var d=parseIso(s); return pad(d.getDate())+'/'+pad(d.getMonth()+1)+'/'+d.getFullYear(); };
+var today = function(){ var d=new Date(); d.setHours(0,0,0,0); return d; };
+var addDays = function(d,n){ var x=new Date(d); x.setDate(x.getDate()+n); return x; };
+var esc = function(s){ return String(s).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); };
+var money = function(c){ return (c<0?'-':'')+'$'+(Math.abs(c)/100).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); };
+var ordinal = function(n){ var s=['th','st','nd','rd'], v=n%100; return n+(s[(v-20)%10]||s[v]||s[0]); };
+var keyOf = function(pid,u){ return pid+':'+u; };
+
+function burst(cx,cy,ro,ri,n){
+  var p=[];
+  for(var i=0;i<n*2;i++){ var r=i%2?ri:ro, a=Math.PI*i/n-Math.PI/2; p.push((cx+r*Math.cos(a)).toFixed(2)+','+(cy+r*Math.sin(a)).toFixed(2)); }
+  return p.join(' ');
+}
+var PCT = '<path d="M8.6 15.4l6.8-6.8" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/><circle cx="9.2" cy="9.2" r="1.5" fill="#fff"/><circle cx="14.8" cy="14.8" r="1.5" fill="#fff"/>';
+
+/* ---------- Icons ---------- */
+var I = {
+  trash:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M9 6V4h6v2M6 6l1 14h10l1-14M10 10v7M14 10v7"/></svg>',
+  minus:'<svg width="18" height="18" viewBox="0 0 24 24"><path d="M5 12h14" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>',
+  plus:'<svg width="18" height="18" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>',
+  chevR:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>',
+  chevL:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4l-8 8 8 8"/></svg>',
+  chevU:'<svg class="chev" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg>',
+  chevD:'<svg class="chev" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>',
+  pin:'<svg width="20" height="20" viewBox="0 0 24 24" fill="#222"><path d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>',
+  cal:'<svg width="18" height="18" viewBox="0 0 24 24" fill="#333"><path d="M7 2h2v2h6V2h2v2h3a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h3V2zM5 9v10h14V9H5zm2 2h2v2H7v-2zm4 0h2v2h-2v-2zm4 0h2v2h-2v-2zm-8 4h2v2H7v-2zm4 0h2v2h-2v-2zm4 0h2v2h-2v-2z"/></svg>',
+  box:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="2.5" y="2.5" width="19" height="19" rx="7.5" stroke="#0A5C66" stroke-width="1.8"/><path d="M12 6.3l5 2.7v5.9L12 17.7l-5-2.8V9z" fill="#0A5C66"/><path d="M7 9l5 2.7L17 9M12 11.7v6" stroke="#fff" stroke-width="1.2"/></svg>',
+  noimg:'<svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="#DCDCDC" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 8h23a3 3 0 0 1 3 3v23M34 40H11a3 3 0 0 1-3-3V14"/><path d="M15 34l7-8 5 5"/><path d="M5 5l38 38"/></svg>',
+  plusCircle:'<svg width="30" height="30" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#064E57"/><path d="M12 7v10M7 12h10" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg>',
+  halal:'<svg width="22" height="22" viewBox="0 0 24 24"><polygon points="'+burst(12,12,11.6,9.9,12)+'" fill="#12866F"/><text x="12" y="14.6" font-size="7.2" fill="#fff" text-anchor="middle" font-family="Arial">حلال</text></svg>',
+  discBlue:'<svg width="22" height="22" viewBox="0 0 24 24"><polygon points="'+burst(12,12,11.6,9.6,10)+'" fill="#4F7DF3"/>'+PCT+'</svg>',
+  pctWhite:'<svg width="18" height="18" viewBox="0 0 24 24"><polygon points="'+burst(12,12,11.6,9.6,10)+'" fill="#fff"/>'+PCT.replace(/#fff/g,'#0E7C7B')+'</svg>',
+  check:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+  home:'<svg width="26" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l9.5 8.5H18.5V21h-4.5v-6h-4v6H5.5v-9.5H2.5z"/></svg>',
+  grid:'<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/></svg>',
+  promo:'<svg width="26" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2.5" y="4.5" width="19" height="15" rx="1.5"/><path d="M14.6 9.6c-.5-.8-1.4-1.3-2.6-1.3-1.4 0-2.4.7-2.4 1.8 0 2.5 5 1.3 5 3.8 0 1.1-1 1.8-2.6 1.8-1.1 0-2.1-.5-2.6-1.3M12 6.8v10.4"/></svg>',
+  cart:'<svg width="26" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M2 3h3l2.6 11a2 2 0 0 0 2 1.6h8.2a2 2 0 0 0 1.9-1.5L21.5 7H6.3" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/><circle cx="10" cy="20.2" r="1.9"/><circle cx="17.6" cy="20.2" r="1.9"/></svg>',
+  sbInfo:'<svg width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="currentColor"/><path d="M12 11v6" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="7.6" r="1.35" fill="#fff"/></svg>',
+  sbWarn:'<svg width="20" height="20" viewBox="0 0 24 24"><path d="M12 3.2 1.9 20.5h20.2z" fill="currentColor"/><path d="M12 9.5v5" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="17.6" r="1.25" fill="#fff"/></svg>',
+  sbError:'<svg width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="currentColor"/><path d="M8.5 8.5l7 7M15.5 8.5l-7 7" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>',
+  sbOk:'<svg width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="currentColor"/><path d="M7.5 12.4l3 3 6-6.4" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  sbClock:'<svg width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="currentColor"/><path d="M12 6.8V12l3.4 2.2" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  sbRefresh:'<svg width="20" height="20" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="currentColor"/><path d="M16.6 10.2A5 5 0 0 0 7.6 9.6M7.4 13.8a5 5 0 0 0 9 .6" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/><path d="M7 6.8v3.1h3.1M17 17.2v-3.1h-3.1" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  search:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6E7479" stroke-width="2.2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg>',
+  funnel:'<svg width="22" height="22" viewBox="0 0 24 24" fill="#111"><path d="M3 4h18l-7 8.5V20l-4-2v-5.5z"/></svg>',
+  plusBig:'<svg width="22" height="22" viewBox="0 0 24 24"><path d="M12 4v16M4 12h16" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>',
+  user:'<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="7.8" r="4.3"/><path d="M3.3 21c.6-4.3 4.1-6.6 8.7-6.6s8.1 2.3 8.7 6.6z"/></svg>',
+  cartBig:'<svg width="64" height="64" viewBox="0 0 24 24" fill="#C9D3D6"><path d="M2 3h3l2.6 11a2 2 0 0 0 2 1.6h8.2a2 2 0 0 0 1.9-1.5L21.5 7H6.3" fill="none" stroke="#C9D3D6" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/><circle cx="10" cy="20.2" r="1.6"/><circle cx="17.6" cy="20.2" r="1.6"/></svg>'
+};
+
+/* ---------- Data ---------- */
+var CUSTOMER = { name:'SGQ CUSTOMER', addr:'232 PANDAN LOOP 232 WILMAR INTERNATIONAL SINGAPORE 128420' };
+var PRODUCTS = {
+  bs:{ sku:'SKU-BKS-0102', name:'BAKING SODA (SODIUM BICARBONATE)', brand:'No Brand', pack:'IN 20 X 1KG BAG PER CAR', uoms:{ BAG:{price:130} } },
+  ag:{ sku:'SKU-MLO-0310', name:'ACTIVE-GO', brand:'MILO', pack:'IN 6 X 1.8KG TIN PER CAR', uoms:{ CAR:{price:1377}, TIN:{price:1377} }, schedUoms:['TIN','CAR'] },
+  wf:{ sku:'SKU-FLR-0125', name:'WHOLEMEAL FLOUR - HCS', brand:'SW WHOLEMEAL', pack:'IN 25KG PAPER BAG', halal:true,
+       promo:{ label:'HCS Trade Discount Discount (Flour)', short:'HCS Trade Discount' }, uoms:{ BAG:{price:1800, list:2000} } },
+  so:{ sku:'SKU-OIL-0451', name:'SUNFLOWER OIL', brand:'GOLDEN SUN', pack:'IN 4 X 5L BOTTLE PER CAR', halal:true, uoms:{ BTL:{price:1150}, CAR:{price:4400} } },
+  cs:{ sku:'SKU-SUG-0218', name:'CASTER SUGAR', brand:'CRYSTAL FINE', pack:'IN 25KG PAPER BAG', halal:true,
+       promo:{ label:'Bulk Sugar Discount (Caster)', short:'Bulk Sugar Discount' }, uoms:{ BAG:{price:3200, list:3500} } },
+  bb:{ sku:'SKU-SPR-0733', name:'BUTTER BLEND SPREAD', brand:'CREAMY GOLD', pack:'IN 36 X 250G TUB PER CAR', uoms:{ TUB:{price:1250} } }
+};
+var INITIAL_CART  = { 'bs:BAG':10, 'ag:CAR':20, 'ag:TIN':30, 'wf:BAG':40 };
+var INITIAL_ORDER = ['bs','ag','wf'];          // cart display order; new products are appended
+var SCHED_BASE    = ['ag','bs','wf'];          // delivery schedule display order (as in the UAT app)
+var CATALOG       = ['so','wf','ag','cs','bs','bb'];
+var MAX_QTY = 9999;
+var INCOTERMS = ['Self-Pickup','Delivery'];
+var DEFAULT_INCOTERM = 'Delivery';
+var ADDR = {
+  'Delivery':[
+    { name:'nhan.pham', addr:'517E JURONG WEST STREET 52 SINGAPORE 645517' },
+    { name:'SGQ CUSTOMER', addr:'232 PANDAN LOOP 232 WILMAR INTERNATIONAL SINGAPORE 128420' }
+  ],
+  'Self-Pickup':[
+    { name:'WILMAR PANDAN WAREHOUSE', addr:'232 PANDAN LOOP SINGAPORE 128420' }
+  ]
+};
+var PAYMENT_TERM = '30 days';
+var GST_RATE = 9;
+
+/* ---------- State ---------- */
+var STORE_KEY = 'rtsc-combine-demo-v1';
+function fresh(){ return { cart:Object.assign({},INITIAL_CART), order:INITIAL_ORDER.slice(), incoterm:DEFAULT_INCOTERM, schedules:[], nextOrderId:2677, draftOrderId:null, stock:{ status:'none' }, atpMode:'normal', stockCase:'mixed', validMin:1 }; }
+function load(){
+  try{ var s=JSON.parse(localStorage.getItem(STORE_KEY)); if(s && s.cart && Array.isArray(s.schedules)) return s; }catch(e){}
+  return null;
+}
+/* Keep S.order in line with the cart: drop removed products, append newly added ones. */
+function syncOrder(){
+  if(!Array.isArray(S.order)) S.order=INITIAL_ORDER.slice();
+  var has={};
+  Object.keys(S.cart).forEach(function(k){ var p=k.split(':')[0]; if(PRODUCTS[p]) has[p]=1; else delete S.cart[k]; });
+  S.order=S.order.filter(function(p){ return has[p]; });
+  Object.keys(has).forEach(function(p){ if(S.order.indexOf(p)<0) S.order.push(p); });
+}
+function persist(){ syncOrder(); try{ localStorage.setItem(STORE_KEY, JSON.stringify(S)); }catch(e){} }
+
+var S = load() || fresh();
+syncOrder();
+if(!S.stock || S.stock.status==='loading') S.stock={ status:'none' };   // a check cut off by a reload is dropped
+if(!S.atpMode) S.atpMode='normal';
+if(!S.stockCase) S.stockCase='mixed';
+if(!S.validMin) S.validMin=1;
+var UI = { screen:'cart', prev:'cart', ov:null, rendered:null, q:'', filter:'all' };
+var E = null;            // schedule editor draft
+var scrollMem = {};
+
+/* ---------- Domain logic ---------- */
+function cartLines(){
+  return S.order.map(function(pid){
+    return { pid:pid, uoms:Object.keys(PRODUCTS[pid].uoms).filter(function(u){ return S.cart[keyOf(pid,u)]>0; }) };
+  }).filter(function(l){ return l.uoms.length; });
+}
+function schedOrder(){
+  var o=SCHED_BASE.filter(function(p){ return S.order.indexOf(p)>=0; });
+  S.order.forEach(function(p){ if(o.indexOf(p)<0) o.push(p); });
+  return o.map(function(p){ return [p, PRODUCTS[p].schedUoms || Object.keys(PRODUCTS[p].uoms)]; });
+}
+function productKeys(pid){ return Object.keys(PRODUCTS[pid].uoms).map(function(u){ return keyOf(pid,u); }); }
+function allocated(k, list){
+  return (list||S.schedules).reduce(function(a,s){ return a+(s.alloc[k]||0); },0);
+}
+function mismatches(){
+  if(!S.schedules.length) return [];
+  var out=[];
+  cartLines().forEach(function(l){
+    l.uoms.forEach(function(u){
+      var k=keyOf(l.pid,u), c=S.cart[k], a=allocated(k);
+      if(c!==a) out.push({ pid:l.pid, uom:u, key:k, cart:c, alloc:a, diff:c-a });
+    });
+  });
+  return out;
+}
+function totals(cart){
+  var gross=0, net=0, items=0;
+  Object.keys(cart).forEach(function(k){
+    var p=k.split(':'), pu=PRODUCTS[p[0]].uoms[p[1]], q=cart[k];
+    items+=q; net+=pu.price*q; gross+=(pu.list||pu.price)*q;
+  });
+  var gst=Math.round(net*GST_RATE/100);
+  return { gross:gross, disc:gross-net, net:net, gst:gst, total:net+gst, items:items };
+}
+function productDiscount(pid, cart){
+  var p=PRODUCTS[pid], d=0;
+  Object.keys(p.uoms).forEach(function(u){ var pu=p.uoms[u]; if(pu.list) d+=(pu.list-pu.price)*(cart[keyOf(pid,u)]||0); });
+  return d;
+}
+function cleanupSchedules(){
+  S.schedules.forEach(function(s){
+    Object.keys(s.alloc).forEach(function(k){ if(!(S.cart[k]>0) || !s.alloc[k]) delete s.alloc[k]; });
+  });
+  S.schedules = S.schedules.filter(function(s){ return Object.keys(s.alloc).length; });
+  if(!Object.keys(S.cart).length) S.schedules=[];
+}
+/* Cart quantity change. Reducing below the scheduled total asks first; on Confirm the
+   schedule is kept as is and the line shows "Overallocated". */
+function setCartQty(k, n){
+  n = Math.max(1, Math.min(MAX_QTY, Math.floor(n)||1));
+  var old=S.cart[k], a=allocated(k);
+  if(n===old){ render(); return; }
+  if(n<old && n<a){
+    var pid=k.split(':')[0], u=k.split(':')[1];
+    dialog('Reduce Cart Quantity?',
+      'Reducing '+PRODUCTS[pid].name+' to '+n+' '+u+' will leave '+(a-n)+' '+u+' still scheduled.<br><br>Please update your delivery schedule.',
+      [ { label:'Confirm', kind:'danger', fn:function(){ applyCartQty(k,n); } },
+        { label:'Cancel', fn:function(){ render(); } } ], false);
+    return;
+  }
+  applyCartQty(k,n);
+}
+function applyCartQty(k,n){ S.cart[k]=n; persist(); render(); }
+
+/* ---------- Check Stock (VN-85972) ----------
+   SAP / MuleSoft are not simulated: pressing Check Stock returns these numbers after a short delay.
+   avail   = fulfillable qty in base UOM (already net of SOs, blocked and expired stock)
+   factors = base units per UOM; a UOM without a factor -> "Unable to validate"
+   avail null / negative, or invalid material -> OUT_OF_STOCK                               */
+var STOCK = {
+  bs:{ base:'BAG', factors:{ BAG:1 },        avail:30 },
+  ag:{ base:'TIN', factors:{ TIN:1, CAR:6 }, avail:108 },
+  wf:{ base:'BAG', factors:{ BAG:1 },        avail:20 },
+  so:{ base:'BTL', factors:{ BTL:1 },        avail:50 },        // CAR conversion factor missing
+  cs:{ base:'BAG', factors:{ BAG:1 },        avail:null },      // SAP returns null
+  bb:{ base:'TUB', factors:{ TUB:1 },        invalid:true }     // material code not active in SAP
+};
+var VALID_OPTIONS    = [1,3,5];   // validity window in minutes, picked in demo controls (BRD suggests 30 min)
+function validMs(){ return (S.validMin||1)*60*1000; }
+function validLabel(){ var st=S.stock||{}, m=st.validFor ? Math.round(st.validFor/60000) : (S.validMin||1); return m+' minute'+(m>1?'s':''); }
+var STOCK_WARN_MS    = 30*1000;   // warn when 30 s are left
+var STOCK_TIMEOUT_MS = 5000;      // request timeout
+var STOCK_DELAY_MS   = 1500;      // normal response time
+var ATP_MODES = {
+  normal:      { label:'Normal',              sub:'Trả kết quả theo tồn kho giả sau ~1,5 giây' },
+  unavailable: { label:'Service unavailable', sub:'Trả lỗi "Stock check is currently unavailable"' },
+  timeout:     { label:'Timeout',             sub:'Không phản hồi, báo timeout sau 5 giây' }
+};
+
+function cartFp(){ return Object.keys(S.cart).sort().map(function(k){ return k+'='+S.cart[k]; }).join('|'); }
+
+/* One batch result for the whole cart. Lines of the same material share one stock pool,
+   taken in cart order (ACTIVE-GO: CAR first, then TIN). */
+/* Ready-made stock situations for the demo controls (profile tab).
+   mixed   = the per-product table above (default, shows every kind of result)
+   all     = plenty of stock for every line -> everything CONFIRMED
+   partial = about half of what the cart asks for, every line -> INSUFFICIENT (auto-adjusted)
+   oos     = no stock at all -> every line OUT_OF_STOCK                                      */
+var STOCK_CASES = {
+  mixed:   { label:'Mixed (mặc định)',   sub:'Mỗi sản phẩm một kết quả khác nhau, gồm cả lỗi dữ liệu' },
+  all:     { label:'All available',      sub:'Đủ hàng cho mọi dòng → tất cả Stock Confirmed' },
+  partial: { label:'Partially available', sub:'Chỉ còn khoảng một nửa số đặt → mọi dòng bị tự giảm' },
+  oos:     { label:'All out of stock',   sub:'Hết hàng toàn bộ → mọi dòng Out of stock' }
+};
+function stockFor(pid){
+  var st=STOCK[pid], c=S.stockCase||'mixed';
+  if(c==='mixed' || !st) return st;
+  var f=Object.assign({}, st.factors); if(pid==='so') f.CAR=4;           // the other cases have no data errors
+  var need=0; Object.keys(PRODUCTS[pid].uoms).forEach(function(u){ need+=(S.cart[keyOf(pid,u)]||0)*(f[u]||0); });
+  var avail;
+  if(c==='all') avail=need+100;
+  else if(c==='oos') avail=0;
+  else {                                   // partial: half of the first request, then fixed, so a re-run after auto-adjust confirms
+    S.pAvail=S.pAvail||{};
+    if(S.pAvail[pid]==null) S.pAvail[pid]=Math.max(1, Math.floor(need/2));
+    avail=S.pAvail[pid];
+  }
+  return { base:st.base, factors:f, avail:avail };
+}
+function atpResults(){
+  var res={};
+  cartLines().forEach(function(l){
+    var st=stockFor(l.pid);
+    var pool = st && !st.invalid && typeof st.avail==='number' && st.avail>=0 ? st.avail : null;
+    l.uoms.forEach(function(u){
+      var k=keyOf(l.pid,u), q=S.cart[k], r={ requested:q };
+      if(pool===null){ r.status='OUT_OF_STOCK'; r.avail=0; }
+      else if(!st.factors[u]){ r.status='UNVALIDATED'; }
+      else {
+        var f=st.factors[u], max=Math.floor(pool/f);
+        if(max>=q){ r.status='CONFIRMED'; r.avail=max; pool-=q*f; }
+        else if(max>0){ r.status='INSUFFICIENT'; r.avail=max; pool-=max*f; }
+        else { r.status='OUT_OF_STOCK'; r.avail=0; }
+      }
+      res[k]=r;
+    });
+  });
+  return res;
+}
+/* ATP runs when the user opens the delivery schedule (Add Delivery or a schedule link) and the
+   current cart has no valid result. All CONFIRMED -> onPass() opens the schedule; otherwise the
+   user stays on the cart and sees the per-line results. */
+function checkStock(onPass, target){
+  if(UI.checking || !cartLines().length) return;
+  var fp=cartFp(), mode=S.atpMode||'normal';
+  UI.checking=true; UI.checkTarget=target||''; S.stock={ status:'loading' }; render();
+  var delay = mode==='timeout' ? STOCK_TIMEOUT_MS : mode==='unavailable' ? 1200 : STOCK_DELAY_MS;
+  setTimeout(function(){
+    UI.checking=false; UI.checkTarget='';
+    if(cartFp()!==fp){
+      S.stock={ status:'none' }; persist(); render();
+      toast('Your cart changed during the stock check. Please try again.','error'); return;
+    }
+    if(mode!=='normal'){ S.stock={ status:'error', kind:mode }; persist(); render(); return; }
+    var res=atpResults(), adjusted=0;
+    Object.keys(res).forEach(function(k){
+      var r=res[k];
+      if(r.status==='INSUFFICIENT'){ r.adjustedFrom=r.requested; S.cart[k]=r.avail; adjusted++; }   // auto-adjust to max
+    });
+    var all=Object.keys(res).every(function(k){ return res[k].status==='CONFIRMED'; });
+    S.stock={ status:'done', results:res, fp:fp, fpShown:cartFp(), checkedAt:Date.now(), validFor:validMs(), allConfirmed:all };
+    persist(); render();
+    if(all && onPass) onPass();
+  }, delay);
+}
+/* Single entry to the delivery schedule. A valid ATP result opens it directly; otherwise ATP runs first. */
+function enterSchedule(kind, idx){
+  var open=function(){ if(kind==='add') openEditor(-1,true); else openEditor(idx,false); };
+  if(stockView().valid){ if(kind==='add') loading(600,'Loading...').then(open); else open(); return; }
+  checkStock(open, kind==='add' ? 'add' : 'sched:'+idx);
+}
+/* Where the user goes to run ATP again: Add Delivery before any schedule exists, the schedule link after. */
+function recheckHint(){ return S.schedules.length ? 'open your delivery schedule' : 'tap Add Delivery'; }
+function cap1(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
+/* Current state of the check, derived from S.stock and the cart.
+   phase: none | loading | error | issues | ok | warn | expired | changed                    */
+function stockView(){
+  var st=S.stock||{ status:'none' }, v={ st:st, phase:'none', valid:false, show:false };
+  if(st.status==='loading') v.phase='loading';
+  else if(st.status==='error') v.phase='error';
+  else if(st.status==='done'){
+    if(cartFp()!==st.fpShown) v.phase='changed';               // user changed the cart after the check
+    else if(!st.allConfirmed){ v.phase='issues'; v.show=true; }
+    else {
+      v.left=st.checkedAt+(st.validFor||validMs())-Date.now();   // the window chosen at check time applies
+      if(v.left<=0) v.phase='expired';
+      else { v.phase = v.left<=STOCK_WARN_MS ? 'warn' : 'ok'; v.valid=true; v.show=true; }
+    }
+  }
+  return v;
+}
+function stockCounts(v){
+  var c={ adjusted:0, oos:0, unval:0 };
+  if(v.st.status!=='done') return c;
+  Object.keys(v.st.results).forEach(function(k){
+    if(!(S.cart[k]>0)) return;
+    var r=v.st.results[k];
+    if(r.adjustedFrom!=null) c.adjusted++;
+    else if(r.status==='OUT_OF_STOCK') c.oos++;
+    else if(r.status==='UNVALIDATED') c.unval++;
+  });
+  return c;
+}
+function nItems(n, one, many){ return n+' item'+(n>1?'s':'')+' '+(n>1?many:one); }
+function secs(ms){ return Math.max(0,Math.ceil(ms/1000)); }
+function mmss(ms){ var s=secs(ms); return Math.floor(s/60)+':'+pad(s%60); }
+function stockBanner(v){
+  if(!cartLines().length) return '';
+  // tone: warn (amber) | err (red, service errors only) | ok (green)
+  var b=function(tone, icon, title, sub, extra){
+    return '<div class="sbanner '+tone+'" id="stockBanner" data-phase="'+v.phase+'">'+
+      '<span class="sb-ic">'+icon+'</span><div class="sb-body"><div class="sb-t">'+title+'</div>'+
+      (sub?'<div class="sb-s">'+sub+'</div>':'')+(extra||'')+'</div></div>';
+  };
+  var updated=function(){ return b('warn', I.sbRefresh, 'Your cart has been updated.', 'Please '+recheckHint()+' to check stock again before checkout.'); };
+  switch(v.phase){
+    case 'error':
+      return v.st.kind==='timeout'
+        ? b('err', I.sbClock, 'Stock check timed out.', 'Please try again. You cannot proceed with your order until stock is confirmed.')
+        : b('err', I.sbError, 'Stock check is currently unavailable.', 'Please try again. If the problem persists, contact Trade Support. You cannot proceed with your order until stock is confirmed.');
+    case 'issues': {
+      var c=stockCounts(v);
+      if(!c.adjusted && !c.oos && !c.unval) return updated();
+      var lineCount=Object.keys(S.cart).filter(function(k){ return S.cart[k]>0; }).length;
+      if(c.oos===lineCount)      // every line in the cart is out of stock
+        return b('err', I.sbError, 'All items are out of stock.', 'Please remove all items from cart and contact Trade Support.');
+      // one message for every issue mix (insufficient / out of stock / unable to validate)
+      return b('warn', I.sbWarn, 'Some items are unavailable or not fully available.',
+        'Please remove out-of-stock items and review the adjusted quantities below.');
+    }
+    case 'changed': return updated();
+    case 'warn':    return b('warn', I.sbClock, 'Your stock check result will expire in <span id="stockLeft">'+secs(v.left)+'</span> seconds.', 'Please proceed to checkout, or '+recheckHint()+' to check stock again.');
+    case 'ok':      return b('ok', I.sbOk, 'Stock confirmed for all items.',
+                      (S.schedules.length ? 'You may proceed to checkout.' : 'You may arrange your delivery.')+' (Valid for '+validLabel()+'.)');
+    case 'expired': return b('warn', I.sbClock, 'Your stock check has expired.', 'Please '+recheckHint()+' to check stock again.');
+  }
+  return '';
+}
+/* One banner at a time on the Cart. Priority:
+   1 ATP error  2 stock issues  3 cart changed / expired + schedule mismatch (merged)
+   4 mismatch only (ATP still valid)  5 changed / expired  6 expiring  7 all confirmed
+   Per-line details (Unallocated / Overallocated, stock chips) stay under each product.  */
+function cartBanner(v, mismatch){
+  if(!cartLines().length) return '';
+  var issues = v.phase==='issues' && (function(c){ return c.adjusted||c.oos||c.unval; })(stockCounts(v));
+  if(v.phase==='error' || issues || !mismatch) return stockBanner(v);
+  var mb=function(phase, icon, title, sub){
+    return '<div class="sbanner warn" id="stockBanner" data-phase="'+phase+'" data-mismatch="1">'+
+      '<span class="sb-ic">'+icon+'</span><div class="sb-body"><div class="sb-t">'+title+'</div><div class="sb-s">'+sub+'</div></div></div>';
+  };
+  if(v.phase==='expired')
+    return mb('expired', I.sbClock, 'Your stock check has expired.', 'Please open your delivery schedule to update it and check stock again.');
+  if(!v.valid)   // cart changed (or not checked yet) and it no longer matches the schedule
+    return mb('changed', I.sbRefresh, 'Your cart no longer matches your delivery schedule.', 'Please open your delivery schedule to update it. Stock will be checked again.');
+  return mb('mismatch', I.sbWarn, 'Some items have quantity mismatches between the cart and delivery schedule.', 'Please update your delivery schedule before checkout.');
+}
+function stockChip(k, u, v){
+  if(v.phase==='error') return '<div class="stk stk-fail" data-stock="'+k+'">Stock check failed</div>';
+  if(!v.show) return '';
+  var r=v.st.results[k]; if(!r) return '';
+  var rm='<button class="stk-remove" data-act="stockRemove" data-key="'+k+'">Remove</button>';
+  switch(r.status){
+    case 'CONFIRMED':    return '<div class="stk stk-ok" data-stock="'+k+'">✓ Stock Confirmed</div>';
+    case 'INSUFFICIENT': return '<div class="stk stk-warn" data-stock="'+k+'"><span class="ic">'+I.sbWarn+'</span><span class="tx"><b>Only '+r.avail+' '+u+' available</b> · adjusted from '+r.adjustedFrom+'</span></div>';
+    case 'OUT_OF_STOCK': return '<div class="stk stk-oos" data-stock="'+k+'"><span class="ic">'+I.sbError+'</span><span class="tx"><b>Out of stock</b></span>'+rm+'</div>';
+    case 'UNVALIDATED':  return '<div class="stk stk-unval" data-stock="'+k+'"><span class="ic">'+I.sbInfo+'</span><span class="tx"><b>Unable to validate</b> · contact Trade Support</span>'+rm+'</div>';
+  }
+  return '';
+}
+function stockTip(v){
+  if(v.phase==='loading') return 'Checking stock, please wait...';
+  if(v.phase==='issues')  return 'Please resolve the stock issues above, then '+recheckHint()+' to check stock again.';
+  if(v.valid && !S.schedules.length) return 'Please add your delivery schedule before checking out.';
+  if(v.phase==='error')   return 'Stock check failed. Please '+recheckHint()+' to try again.';
+  if(!S.schedules.length) return 'Please tap Add Delivery to check stock and arrange your delivery.';
+  return cap1(recheckHint())+' to check stock again before checking out.';
+}
+function showCheckoutTip(){
+  var tip=$('#coTip'); if(!tip) return;
+  tip.textContent=stockTip(stockView()); tip.classList.add('show');
+  clearTimeout(showCheckoutTip._t); showCheckoutTip._t=setTimeout(function(){ tip.classList.remove('show'); },2600);
+}
+function setAtpMode(m){ S.atpMode=m; persist(); toast('Kịch bản Check Stock: '+ATP_MODES[m].label,'success'); }
+function setStockCase(c){
+  S.stockCase=c; S.pAvail={}; S.stock={ status:'none' }; S.atpMode='normal';    // an old result no longer matches the new stock
+  persist(); render(); toast('Tồn kho: '+STOCK_CASES[c].label,'success');
+}
+function showStockTable(){
+  var cs=S.stockCase||'mixed';
+  if(cs!=='mixed'){
+    dialog('Mock stock: '+STOCK_CASES[cs].label, '<div class="stk-row"><span>'+STOCK_CASES[cs].sub+'.</span></div>'+
+      '<div class="stk-row"><span>Chọn "Mixed (mặc định)" để xem bảng tồn kho từng sản phẩm.</span></div>', [{ label:'Close' }]);
+    return;
+  }
+  var rows=CATALOG.map(function(pid){
+    var p=PRODUCTS[pid], st=STOCK[pid], v;
+    if(st.invalid) v='Material code invalid → Out of Stock';
+    else if(st.avail==null || st.avail<0) v='SAP returns null → Out of Stock';
+    else v=st.avail+' '+st.base+Object.keys(p.uoms).filter(function(u){ return u!==st.base; }).map(function(u){
+      return st.factors[u] ? ' (1 '+u+' = '+st.factors[u]+' '+st.base+')' : ' ('+u+': missing factor → Unable to validate)';
+    }).join('');
+    return '<div class="stk-row"><b>'+p.name+'</b><span>'+v+'</span></div>';
+  }).join('');
+  dialog('Mock stock (fulfillable)', rows, [{ label:'Close' }]);
+}
+
+/* ---------- Editor (Delivery Schedule screen) ---------- */
+function snap(s){ return { id:s.id, addressIdx:s.addressIdx, date:s.date, instruction:s.instruction, alloc:Object.assign({},s.alloc) }; }
+function newDraft(){ return { id:'s'+Date.now().toString(36)+Math.random().toString(36).slice(2,6), addressIdx:0, date:null, instruction:'', alloc:{}, committed:null, dirty:false, err:null }; }
+function openEditor(expandIdx, addNew){
+  // no saved schedule yet -> start from the default Incoterm (also covers data saved by older versions)
+  E = { incoterm:S.schedules.length ? S.incoterm : DEFAULT_INCOTERM, expanded:expandIdx,
+        list:S.schedules.map(function(s){ var d=snap(s); d.committed=snap(s); d.dirty=false; d.err=null; return d; }) };
+  if(addNew || !E.list.length){ E.list.push(newDraft()); E.expanded=E.list.length-1; }
+  go('schedule');
+}
+/* Commit saved schedules. Combined flow: the schedule never changes the cart.
+   The cart is what ATP checked; the schedule only splits that quantity into delivery dates.
+   schedule total < cart -> "Unallocated" (Update Cart can reduce the cart)
+   schedule total > cart -> only possible after the cart was reduced; shown as "Overallocated",
+                            fixed by reducing the schedule.                                   */
+function commitEditor(){
+  S.incoterm = E.incoterm;
+  S.schedules = E.list.filter(function(x){ return x.committed; }).map(function(x){ return snap(x.committed); });
+  cleanupSchedules(); persist();
+}
+function editorAllSaved(){ return E.list.every(function(x){ return x.committed && !x.dirty; }); }
+function canAddSchedule(){ return E.list.length===0 || editorAllSaved(); }
+/* Most this schedule can take for a UOM: cart quantity minus what the other schedules hold. */
+function allocCap(i,k){ return Math.max(0, (S.cart[k]||0) - E.list.reduce(function(a,s,j){ return j===i?a:a+(s.alloc[k]||0); },0)); }
+function setAlloc(i,k,n){
+  var it=E.list[i], cur=it.alloc[k]||0, cap=allocCap(i,k);
+  n=Math.floor(n); if(isNaN(n)||n<0) n=0;
+  if(n>cur && n>cap){                       // increases stop at the cart quantity; reductions are always allowed
+    n=Math.max(cap,cur);
+    toast('Only '+(S.cart[k]||0)+' '+k.split(':')[1]+' in your cart. To order more, update the quantity in your cart.');
+  }
+  it.alloc[k]=n; it.dirty=true; render();
+}
+function saveSched(i){
+  var it=E.list[i];
+  if(!it.date){ it.err='Please choose Delivery/Self-Pickup Date'; render(); toast('Please choose Delivery/Self-Pickup Date','error'); return; }
+  var sum=Object.keys(it.alloc).reduce(function(a,k){ return a+(it.alloc[k]||0); },0);
+  if(!sum){ toast('Please allocate at least 1 product to this schedule','error'); return; }
+  loading(550,'Saving...').then(function(){
+    it.err=null;
+    Object.keys(it.alloc).forEach(function(k){ if(!it.alloc[k]) delete it.alloc[k]; });
+    it.committed=snap(it); it.dirty=false;
+    commitEditor();
+    render();
+    toast(ordinal(i+1)+' Schedule saved successfully','success');
+  });
+}
+function refreshEditorButtons(i){
+  var done=$('[data-act="done"]'); if(done) done.disabled=!editorAllSaved();
+  var add=$('[data-act="addSched"]'); if(add) add.disabled=!canAddSchedule();
+  var sv=$('[data-act="saveSched"][data-idx="'+i+'"]'); if(sv){ sv.disabled=false; sv.innerHTML='Save'; }
+  var chip=$('[data-chip="'+i+'"]'); if(chip) chip.innerHTML='<span class="chip warn">Unsaved</span>';
+}
+function changeIncoterm(v){
+  if(v===E.incoterm) return;
+  loading(800,'Loading...').then(function(){
+    E.incoterm=v;
+    E.list.forEach(function(it){ it.addressIdx=0; it.dirty=true; });
+    if(!E.list.length){ E.list.push(newDraft()); E.expanded=0; }
+    render();
+  });
+}
+function editorBack(){
+  if(E.list.some(function(x){ return x.dirty; })){
+    dialog('Discard Changes?','You have unsaved changes in the delivery schedule.<br><br>Leave without saving?',[
+      { label:'Discard', kind:'danger', fn:function(){ E=null; go('cart'); } },
+      { label:'Cancel' }
+    ]);
+  } else { E=null; go('cart'); }
+}
+
+/* ---------- Checkout ---------- */
+function checkout(){
+  var mm=mismatches();
+  var over=mm.filter(function(m){ return m.diff<0; });
+  if(over.length){ showUpdateSchedule(over); return; }   // schedule > cart: fix the schedule, never raise the cart
+  if(mm.length){ showUpdateCart(mm); return; }           // cart > schedule: Update Cart reduces the cart
+  if(S.draftOrderId==null){ S.draftOrderId=S.nextOrderId; persist(); }
+  loading(500,'Loading...').then(function(){ go('confirm'); });
+}
+function showUpdateSchedule(over){
+  var lines=over.map(function(m){
+    return '<div class="ua-line">• '+PRODUCTS[m.pid].name+': '+Math.abs(m.diff)+' '+m.uom+' overallocated</div>';
+  }).join('');
+  var first=S.schedules.findIndex(function(s){ return over.some(function(m){ return s.alloc[m.key]; }); });
+  dialog('Update Delivery Schedule', 'The scheduled quantity is more than your cart.<br><br>'+lines+'<br>Please reduce your delivery schedule.', [
+    { label:'Update Schedule', kind:'danger', fn:function(){ openEditor(Math.max(0,first),false); } },
+    { label:'Cancel' }
+  ]);
+}
+/* cart > schedule only ("not assigned"). Update Cart reduces those lines to the scheduled quantity. */
+function showUpdateCart(mm){
+  var lines=mm.map(function(m){
+    return '<div class="ua-line">• '+PRODUCTS[m.pid].name+': '+Math.abs(m.diff)+' '+m.uom+(m.diff>0?' not assigned':' overallocated')+'</div>';
+  }).join('');
+  dialog('Update Cart Quantity', 'The scheduled quantity doesn\'t match your cart.<br><br>'+lines, [
+    { label:'Update Cart', kind:'danger', fn:updateCart },
+    { label:'Cancel' }
+  ]);
+}
+function updateCart(){
+  loading(600,'Updating cart...').then(function(){
+    Object.keys(S.cart).forEach(function(k){ var a=allocated(k); if(a<=0) delete S.cart[k]; else if(a<S.cart[k]) S.cart[k]=a; });   // reduce only
+    cleanupSchedules(); persist(); render(); bumpBadge();
+    toast('Cart quantity updated to match the delivery schedule','success');
+  });
+}
+function submitOrder(){
+  loading(900,'Submitting order...').then(function(){
+    var id=S.draftOrderId;
+    S.cart={}; S.schedules=[]; S.incoterm=DEFAULT_INCOTERM; S.nextOrderId=id+1; S.draftOrderId=null; S.stock={ status:'none' };
+    persist();
+    dialog('Order Submitted','Order ID <b>'+id+'</b> has been submitted successfully.',[
+      { label:'OK', kind:'primary', fn:function(){ go('cart'); } }
+    ], false);
+  });
+}
+
+/* ---------- Rendering ---------- */
+function stepper(kind,k,v,min,max,idx){
+  var ia = idx!=null ? ' data-idx="'+idx+'"' : '';
+  return '<div class="stepper">'+
+    '<button class="st-btn" data-act="'+kind+'Step" data-key="'+k+'" data-d="-1"'+ia+(v<=min?' disabled':'')+' aria-label="Decrease">'+I.minus+'</button>'+
+    '<input class="st-input" type="text" inputmode="numeric" data-input="'+kind+'" data-key="'+k+'"'+ia+' value="'+v+'" aria-label="Quantity">'+
+    '<button class="st-btn" data-act="'+kind+'Step" data-key="'+k+'" data-d="1"'+ia+(v>=max?' disabled':'')+' aria-label="Increase">'+I.plus+'</button>'+
+  '</div>';
+}
+function productImg(p){
+  return '<div class="img">'+I.noimg+(p.promo?'<span class="promo-corner">'+I.pctWhite+'</span>':'')+'</div>';
+}
+function navBar(active){
+  active=active||'cart';
+  var tabs=[['home','Home',I.home],['category','Category',I.grid],['promotion','Promotion',I.promo],['cart','Cart',I.cart],['profile','My Profile',I.user]];
+  var n=Object.keys(S.cart).length;
+  return '<nav class="nav">'+tabs.map(function(t){
+    var badge = t[0]==='cart' && n ? '<span class="badge" id="cartBadge">'+n+'</span>' : '';
+    return '<button data-act="nav" data-tab="'+t[0]+'" class="'+(t[0]===active?'active':'')+'"><span class="ic">'+t[2]+badge+'</span><span>'+t[1]+'</span></button>';
+  }).join('')+'</nav>';
+}
+
+function cartProduct(l, mm, sync, sv){
+  var p=PRODUCTS[l.pid];
+  var rows=l.uoms.map(function(u){
+    var k=keyOf(l.pid,u), q=S.cart[k], pu=p.uoms[u], m=mm[k], sy=sync[k];
+    var un = m ? '<div class="unalloc" data-unalloc="'+k+'">'+(m.diff>0?'Unallocated: '+m.diff:'Overallocated: '+Math.abs(m.diff))+' '+u+'</div>' : '';
+    return '<div class="uom-row'+(sy?' flash':'')+'"><div class="uom-left">'+
+      '<div class="uom-label">UOM ('+u+')</div>'+
+      '<div class="uom-price">'+money(pu.price)+(pu.list?' <s>'+money(pu.list)+'</s>':'')+'</div>'+
+      '<div class="uom-total" data-line-total="'+k+'">Total: '+money(pu.price*q)+'</div>'+
+      '</div><div class="uom-right">'+stepper('cart',k,q,1,MAX_QTY)+un+'</div></div>'+stockChip(k,u,sv);
+  }).join('<div class="uom-sep"></div>');
+  var disc='';
+  if(p.promo){ var d=productDiscount(l.pid,S.cart); if(d) disc='<div class="disc">'+I.discBlue+'<span data-discount="'+l.pid+'">'+p.promo.label+': '+money(-d)+'</span></div>'; }
+  return '<div class="prod" data-pid="'+l.pid+'"><div class="prod-head">'+
+    '<button class="trash" data-act="delProd" data-pid="'+l.pid+'" aria-label="Remove">'+I.trash+'</button>'+
+    productImg(p)+
+    '<div class="pinfo"><div class="pname">'+p.name+'</div><div class="pbrand">Brand: '+p.brand+'</div>'+
+      (p.halal?'<span class="halal">'+I.halal+'Halal</span>':'')+'</div>'+
+    '</div><div class="indent"><div class="pack">'+I.box+'<span>Pack Size: '+p.pack+'</span></div>'+rows+disc+'</div></div>';
+}
+
+function renderCart(){
+  var lines=cartLines(), mm={}, list=mismatches(), t=totals(S.cart), sync={};
+  list.forEach(function(m){ mm[m.key]=m; });
+  (UI.synced||[]).forEach(function(s){ if(sync[s.key]) sync[s.key].to=s.to; else sync[s.key]={ from:s.from, to:s.to }; });
+  UI.synced=null;
+  var hasUnalloc = list.some(function(m){ return m.diff>0; });
+  var sv = stockView(); UI.stockPhase = sv.phase;
+  var canCheckout = lines.length>0 && sv.valid && S.schedules.length>0;   // ATP valid + at least one delivery schedule
+  var h='<div class="screen'+(sv.phase==='loading'?' locked':'')+'" data-screen="cart"><div class="top"><div class="appbar"><h1>Cart</h1></div>';
+  h+=cartBanner(sv, list.length>0);
+  h+='<div class="cust"><div><span class="k">Customer Name:</span> <b>'+CUSTOMER.name+'</b></div><div><span class="k">Address:</span> <b>'+CUSTOMER.addr+'</b></div></div></div>';
+  h+='<div class="scroll">';
+  if(!lines.length){
+    h+='<div class="empty">'+I.cartBig+'<div class="e-t">Your cart is empty</div><div class="e-s">Demo: khôi phục giỏ hàng ban đầu để chạy lại luồng.</div>'+
+       '<button class="btn-outline" style="margin-top:18px" data-act="restoreCart">Khôi phục giỏ hàng demo</button></div>';
+  } else {
+    h+=lines.map(function(l){ return cartProduct(l,mm,sync,sv); }).join('');
+    h+='<div class="sec-head">Delivery Schedule</div><div class="sec-body">';
+    var busy=function(t){ return UI.checking && UI.checkTarget===t; };
+    var spin='<span class="spin-sm"></span>';
+    if(S.schedules.length){
+      h+=S.schedules.map(function(s,i){
+        var b=busy('sched:'+i);
+        return '<button class="sched-link'+(b?' is-checking':'')+'" data-act="openSched" data-idx="'+i+'"><span><span class="sl-title">'+ordinal(i+1)+' Schedule</span>'+
+          '<span class="sl-sub">'+(b?'Checking stock...':S.incoterm+' · '+fmtDate(s.date))+'</span></span>'+(b?spin:I.chevR)+'</button>';
+      }).join('');
+      if(hasUnalloc) h+='<button class="add-delivery more'+(busy('add')?' is-checking':'')+'" data-act="addDelivery">'+
+        (busy('add')?spin+'<span>Checking stock...</span>':I.plusCircle+'<span>Add Delivery ('+ordinal(S.schedules.length+1)+' Schedule)</span>')+'</button>';
+    } else {
+      h+='<button class="add-delivery'+(busy('add')?' is-checking':'')+'" data-act="addDelivery">'+
+        (busy('add')?spin+'<span>Checking stock...</span>':I.plusCircle+'<span>Add Delivery</span>')+'</button>';
+    }
+    h+='</div>';
+  }
+  h+='</div>';
+  h+='<div class="footer"><div class="total-row"><div><div class="t-label">Total:</div><div class="t-items" id="itemCount">'+t.items+' items</div></div>'+
+     '<div class="t-val" id="cartTotal">'+money(t.total)+'</div></div>'+
+     (sv.valid ? '<div class="stock-line'+(sv.phase==='warn'?' warn':'')+'" id="stockLine">✓ Stock confirmed · valid for <span id="stockTimer">'+mmss(sv.left)+'</span></div>' : '')+
+     '<div class="co-wrap"><div class="tip" id="coTip" role="tooltip"></div>'+
+     '<button class="btn-primary'+(canCheckout?'':' is-off')+'" data-act="checkout" id="checkoutBtn" aria-disabled="'+(!canCheckout)+'">Check Out</button></div></div>';
+  h+=navBar()+'</div>';
+  return h;
+}
+
+function schedItem(it, i){
+  var open = E.expanded===i;
+  var unsaved = it.dirty || !it.committed;
+  var sub = !open && it.date ? '<span class="acc-sub">'+fmtDate(it.date)+'</span>' : '';
+  var h='<button class="acc-head" data-act="toggleAcc" data-idx="'+i+'"><span><span>'+ordinal(i+1)+' Schedule</span><span data-chip="'+i+'">'+
+        (unsaved?'<span class="chip warn">Unsaved</span>':'')+'</span>'+sub+'</span>'+(open?I.chevU:I.chevD)+'</button>';
+  if(!open) return h;
+  var addrs=ADDR[E.incoterm], a=addrs[it.addressIdx]||addrs[0];
+  h+='<div class="acc-body">'+
+    '<div class="flabel">Incoterm</div><div class="select disabled">'+E.incoterm+'</div>'+
+    '<div class="flabel mt">'+I.pin+'Address</div>'+
+    '<button class="addr-card" data-act="pickAddr" data-idx="'+i+'"><div class="addr-txt"><div class="addr-name">'+esc(a.name)+'</div><div class="addr-line">'+esc(a.addr)+'</div></div>'+I.chevR+'</button>'+
+    '<div class="flabel mt">'+I.cal+'Delivery/Self-Pickup Date <span class="req">*</span></div>'+
+    '<button class="select date'+(it.err?' invalid':'')+'" data-act="pickDate" data-idx="'+i+'"><span id="dateVal'+i+'">'+(it.date?fmtDate(it.date):'Choose Date')+'</span>'+I.chevR+'</button>'+
+    (it.err?'<div class="err">'+it.err+'</div>':'')+
+    '<div class="flabel mt">Delivery Instruction</div>'+
+    '<textarea class="instr" data-input="instr" data-idx="'+i+'" maxlength="250" placeholder="Enter Delivery Instruction">'+esc(it.instruction)+'</textarea>';
+  schedOrder().forEach(function(x){
+    var pid=x[0], p=PRODUCTS[pid];
+    var us=x[1].filter(function(u){ return S.cart[keyOf(pid,u)]>0; });
+    if(!us.length) return;
+    h+='<div class="sp" data-sp="'+pid+'"><div class="sp-head">'+productImg({})+
+       '<div class="pinfo"><div class="pname">'+p.name+'</div><div class="pbrand">Brand: '+p.brand+'</div></div>'+
+       '<button class="reset" data-act="resetAlloc" data-idx="'+i+'" data-pid="'+pid+'">Reset</button></div>'+
+       '<div class="pack">'+I.box+'<span>Pack Size: '+p.pack+'</span></div>';
+    us.forEach(function(u){
+      var k=keyOf(pid,u), v=it.alloc[k]||0, total=allocated(k,E.list), cartQ=S.cart[k]||0;
+      var av=Math.max(0,cartQ-total), extra=total-cartQ;
+      var note = extra>0
+        ? '<div class="avail-note over" data-over="'+k+'">Overallocated: '+extra+' '+u+' more than the cart ('+cartQ+' '+u+') · please reduce</div>' : '';
+      h+='<div class="uom-box"><span class="ul">UOM ('+u+')</span>'+stepper('alloc',k,v,0,Math.max(v,allocCap(i,k)),i)+'</div>'+
+         '<div class="avail'+(av?'':' zero')+'" data-avail="'+k+'">Available <b>('+av+')</b> product in order</div>'+note;
+    });
+    h+='</div>';
+  });
+  var saved=!unsaved;
+  h+='<div class="save-wrap"><button class="btn-outline" data-act="saveSched" data-idx="'+i+'"'+(saved?' disabled':'')+'>'+(saved?I.check+'Saved':'Save')+'</button></div></div>';
+  return h;
+}
+
+/* Validity reminder on the Delivery Schedule screen ("arrange delivery in limited time"). */
+function schedStockInner(v){
+  if(v.valid) return '✓ Stock confirmed · valid for <span id="stockTimer">'+mmss(v.left)+'</span>';
+  return '✕ Stock check expired · you will need to check stock again before checkout';
+}
+function schedStockStrip(){
+  var v=stockView();
+  return '<div class="sched-stock'+(v.valid?(v.phase==='warn'?' warn':''):' off')+'" id="schedStock">'+schedStockInner(v)+'</div>';
+}
+
+function renderSchedule(){
+  var allSaved=editorAllSaved();
+  var canAdd=canAddSchedule();
+  var h='<div class="screen" data-screen="schedule"><div class="top">'+
+    '<div class="appbar"><button class="back" data-act="back" aria-label="Back">'+I.chevL+'</button><h1>Delivery Schedule</h1>'+
+    '<div class="actions"><button class="icon-btn red" data-act="delSched" aria-label="Delete schedule"'+(E.list.length?'':' disabled')+'>'+I.trash+'</button>'+
+    '<button class="icon-btn add" data-act="addSched" aria-label="Add schedule"'+(canAdd?'':' disabled')+'>'+I.plus+'</button></div></div>'+
+    '<div class="gapbar"></div>'+
+    '<div class="field-wrap"><div class="flabel">Incoterm</div><button class="select" data-act="pickIncoterm" id="incotermBtn"><span>'+E.incoterm+'</span>'+I.chevR+'</button></div>'+
+    schedStockStrip()+
+    '<div class="sec-head">Delivery Schedule</div></div>';
+  h+='<div class="scroll">';
+  if(E.list.length) h+=E.list.map(schedItem).join('');
+  else h+='<div class="ed-empty">No delivery schedule yet.<br>Tap <b>+</b> to add a new schedule.</div>';
+  h+='</div>';
+  h+='<div class="footer"><button class="btn-primary" data-act="done"'+(allSaved?'':' disabled')+'>Done</button></div></div>';
+  return h;
+}
+
+function renderConfirm(){
+  var t=totals(S.cart), lines=cartLines(), d0=today();
+  var h='<div class="screen" data-screen="confirm"><div class="top"><div class="appbar"><button class="back" data-act="confirmBack" aria-label="Back">'+I.chevL+'</button><h1>Order Confirmation</h1></div><div class="gapbar"></div></div>';
+  h+='<div class="scroll">';
+  h+='<div class="oc-hero"><div class="oc-id">Order ID: <b id="orderId">'+S.draftOrderId+'</b></div><span class="chip warn">Pending Submit</span></div>';
+  h+='<div class="card"><div class="card-h">Customer</div>'+
+     '<div class="kv"><span class="k">Customer Name</span><span class="v">'+CUSTOMER.name+'</span></div>'+
+     '<div class="kv"><span class="k">Address</span><span class="v">'+CUSTOMER.addr+'</span></div></div>';
+  h+='<div class="card"><div class="card-h">Order Information</div>'+
+     '<div class="kv"><span class="k">Order Date</span><span class="v">'+fmtDate(iso(d0))+'</span></div>'+
+     '<div class="kv"><span class="k">Validity Period</span><span class="v" id="validity">'+fmtDate(iso(d0))+' - '+fmtDate(iso(addDays(d0,30)))+'</span></div>'+
+     '<div class="kv"><span class="k">Payment Term</span><span class="v" id="payTerm">'+PAYMENT_TERM+'</span></div>'+
+     '<div class="kv"><span class="k">Incoterm</span><span class="v">'+S.incoterm+'</span></div></div>';
+  h+='<div class="card"><div class="card-h">Delivery Schedule</div>';
+  S.schedules.forEach(function(s,i){
+    var addrs=ADDR[S.incoterm], a=addrs[s.addressIdx]||addrs[0];
+    var items=schedOrder().map(function(x){
+      var parts=x[1].filter(function(u){ return s.alloc[keyOf(x[0],u)]; }).map(function(u){ return s.alloc[keyOf(x[0],u)]+' '+u; });
+      return parts.length ? PRODUCTS[x[0]].name+': '+parts.join(', ') : '';
+    }).filter(Boolean);
+    h+='<div class="oc-sched"><div class="t">'+ordinal(i+1)+' Schedule</div>'+
+       '<div><span class="m">Delivery/Self-Pickup Date:</span> <b class="sched-date">'+fmtDate(s.date)+'</b></div>'+
+       '<div><span class="m">Address:</span> '+esc(a.name)+' – '+esc(a.addr)+'</div>'+
+       (s.instruction?'<div><span class="m">Instruction:</span> '+esc(s.instruction)+'</div>':'')+
+       '<div class="m" style="margin-top:4px">'+items.join('<br>')+'</div></div>';
+  });
+  h+='</div>';
+  h+='<div class="card"><div class="card-h">Order Items ('+t.items+' items)</div>';
+  lines.forEach(function(l){
+    var p=PRODUCTS[l.pid];
+    h+='<div class="oc-item"><div class="n">'+p.name+'</div>';
+    l.uoms.forEach(function(u){
+      var q=S.cart[keyOf(l.pid,u)], pu=p.uoms[u];
+      h+='<div class="r"><span>'+q+' '+u+' × '+money(pu.price)+'</span><b>'+money(q*pu.price)+'</b></div>';
+    });
+    if(p.promo){ var d=productDiscount(l.pid,S.cart); if(d) h+='<div class="d">'+I.discBlue+p.promo.label+': '+money(-d)+'</div>'; }
+    h+='</div>';
+  });
+  h+='</div>';
+  h+='<div class="card"><div class="card-h">Summary</div>'+
+     '<div class="kv"><span class="k">Subtotal (before discount)</span><span class="v">'+money(t.gross)+'</span></div>'+
+     lines.filter(function(l){ return PRODUCTS[l.pid].promo && productDiscount(l.pid,S.cart); }).map(function(l){
+       return '<div class="kv"><span class="k">'+PRODUCTS[l.pid].promo.short+'</span><span class="v" data-oc-disc="'+l.pid+'">'+money(-productDiscount(l.pid,S.cart))+'</span></div>';
+     }).join('')+
+     '<div class="kv"><span class="k">Total Discount</span><span class="v" id="ocDiscount">'+money(-t.disc)+'</span></div>'+
+     '<div class="kv"><span class="k">Subtotal</span><span class="v">'+money(t.net)+'</span></div>'+
+     '<div class="kv"><span class="k">GST ('+GST_RATE+'%)</span><span class="v" id="ocGst">'+money(t.gst)+'</span></div>'+
+     '<div class="kv total"><span class="k">Total</span><span class="v" id="ocTotal">'+money(t.total)+'</span></div></div>';
+  h+='<div style="height:8px"></div></div>';
+  h+='<div class="footer"><div class="total-row"><div><div class="t-label">Total:</div><div class="t-items">'+t.items+' items</div></div><div class="t-val">'+money(t.total)+'</div></div>'+
+     '<button class="btn-primary" data-act="submit">Submit</button></div></div>';
+  return h;
+}
+
+/* ---------- Category -> Results (product list) ---------- */
+function resultItems(){
+  var q=(UI.q||'').trim().toLowerCase();
+  return CATALOG.filter(function(pid){
+    var p=PRODUCTS[pid];
+    if(UI.filter==='halal' && !p.halal) return false;
+    if(UI.filter==='promo' && !p.promo) return false;
+    return !q || (p.name+' '+p.brand+' '+p.sku).toLowerCase().indexOf(q)>=0;
+  });
+}
+function resultCard(pid){
+  var p=PRODUCTS[pid], us=Object.keys(p.uoms);
+  var cells=us.map(function(u){ var pu=p.uoms[u];
+    return '<div>'+u+': <b>'+money(pu.price)+'</b>'+(pu.list?' <s>'+money(pu.list)+'</s>':'')+'</div>'; });
+  if(cells.length===1) cells.push('<div></div>');
+  var inCart=us.filter(function(u){ return S.cart[keyOf(pid,u)]>0; }).map(function(u){ return S.cart[keyOf(pid,u)]+' '+u; });
+  return '<div class="rcard" data-rpid="'+pid+'"><div class="rhead">'+productImg(p)+
+    '<div class="pinfo"><div class="pname">'+p.name+'</div><div class="pbrand">Brand: '+p.brand+'</div>'+
+      (p.halal?'<span class="halal">'+I.halal+'Halal</span>':'')+'</div>'+
+    '<button class="radd" data-act="openAdd" data-pid="'+pid+'" aria-label="Add to cart">'+I.plusBig+'</button></div>'+
+    '<div class="rpack">'+I.box+'<span>Pack Size: '+p.pack+'</span></div>'+
+    '<div class="rprice">'+cells.join('')+'</div>'+
+    (inCart.length?'<div class="incart" data-incart="'+pid+'">In cart: '+inCart.join(', ')+'</div>':'')+'</div>';
+}
+function resultList(){
+  var items=resultItems();
+  return items.length ? items.map(resultCard).join('') : '<div class="r-empty">No products found</div>';
+}
+function renderResults(){
+  return '<div class="screen" data-screen="results"><div class="top">'+
+    '<div class="appbar"><button class="back" data-act="resultsBack" aria-label="Back">'+I.chevL+'</button><h1>Results</h1></div>'+
+    '<div class="search-row"><label class="search">'+I.search+
+      '<input id="searchInput" type="search" autocomplete="off" placeholder="Search Product Name or SKU #" value="'+esc(UI.q)+'"></label>'+
+      '<button class="filter-btn" data-act="filter" aria-label="Filter">'+I.funnel+(UI.filter!=='all'?'<span class="dot"></span>':'')+'</button></div></div>'+
+    '<div class="scroll" id="resultList">'+resultList()+'</div>'+
+    navBar('category')+'</div>';
+}
+function openAddSheet(pid){
+  var qty={}; Object.keys(PRODUCTS[pid].uoms).forEach(function(u,i){ qty[keyOf(pid,u)] = i===0 ? 1 : 0; });
+  UI.ov={ kind:'add', pid:pid, qty:qty }; renderOverlay();
+}
+function renderAddSheet(o){
+  var p=PRODUCTS[o.pid], sum=0;
+  var rows=Object.keys(p.uoms).map(function(u){
+    var k=keyOf(o.pid,u), pu=p.uoms[u], q=o.qty[k]||0, c=S.cart[k]||0; sum+=q;
+    return '<div class="as-row"><div><div class="l1">UOM ('+u+')</div><div class="l2">'+money(pu.price)+(pu.list?' <s>'+money(pu.list)+'</s>':'')+'</div>'+
+      (c?'<div class="l3">In cart: '+c+' '+u+'</div>':'')+'</div>'+stepper('add',k,q,0,MAX_QTY)+'</div>';
+  }).join('');
+  return '<div class="ov sheet"><div class="ov-bg" data-act="ovClose"></div><div class="sheet-box add-sheet" role="dialog" aria-modal="true"><div class="sheet-grip"></div>'+
+    '<div class="as-head">'+productImg(p)+'<div class="pinfo"><div class="pname">'+p.name+'</div><div class="pbrand">Brand: '+p.brand+'</div>'+
+      '<div class="as-pack">Pack Size: '+p.pack+'</div></div></div>'+rows+
+    '<div class="as-foot"><button class="btn-primary" data-act="addToCart"'+(sum?'':' disabled')+'>Add to Cart</button></div></div></div>';
+}
+function addToCart(){
+  var o=UI.ov, p=PRODUCTS[o.pid], added=[];
+  Object.keys(o.qty).forEach(function(k){
+    var q=o.qty[k]||0; if(!q) return;
+    S.cart[k]=Math.min(MAX_QTY,(S.cart[k]||0)+q); added.push(q+' '+k.split(':')[1]);
+  });
+  if(!added.length) return;
+  persist(); closeOv(); render(); bumpBadge();
+  toast('Added '+added.join(', ')+' '+p.name+' to cart','success');
+}
+
+function render(){
+  var app=$('#app'), sc=app.querySelector('.scroll');
+  if(sc && UI.rendered) scrollMem[UI.rendered]=sc.scrollTop;
+  syncOrder();
+  if(UI.screen==='schedule' && !E) UI.screen='cart';
+  if(UI.screen==='confirm' && (S.draftOrderId==null || !Object.keys(S.cart).length)) UI.screen='cart';
+  app.innerHTML = UI.screen==='cart' ? renderCart() : UI.screen==='schedule' ? renderSchedule() : UI.screen==='results' ? renderResults() : renderConfirm();
+  var sc2=app.querySelector('.scroll');
+  if(sc2) sc2.scrollTop = scrollMem[UI.screen]||0;
+  UI.rendered=UI.screen;
+  renderOverlay();
+}
+function go(screen){
+  hideToast();
+  var sc=$('#app .scroll'); if(sc && UI.rendered) scrollMem[UI.rendered]=sc.scrollTop;
+  if(screen!=='cart') scrollMem[screen]=0;
+  UI.rendered=null; UI.screen=screen; render();
+}
+
+/* ---------- Overlays ---------- */
+function dialog(title, body, actions, dismissible){
+  hideToast();
+  UI.ov={ kind:'dialog', title:title, body:body, actions:actions, dismissible:dismissible!==false }; renderOverlay();
+}
+function sheet(title, options){ UI.ov={ kind:'sheet', title:title, options:options }; renderOverlay(); }
+function closeOv(){ UI.ov=null; renderOverlay(); }
+function renderOverlay(){
+  var ov=$('#ov'), o=UI.ov;
+  if(!o){ ov.innerHTML=''; UI.ovShown=null; return; }
+  var same = UI.ovShown===o;   // re-render of the overlay already on screen: no enter animation
+  UI.ovShown=o;
+  ov.className = same ? 'still' : '';
+  if(o.kind==='dialog'){
+    ov.innerHTML='<div class="ov"><div class="ov-bg" data-act="'+(o.dismissible?'ovClose':'noop')+'"></div><div class="dialog" role="dialog" aria-modal="true">'+
+      '<div class="dlg-t">'+o.title+'</div><div class="dlg-b">'+o.body+'</div><div class="dlg-a">'+
+      o.actions.map(function(a,i){ return '<button class="dbtn '+(a.kind||'ghost')+'" data-act="dlg" data-i="'+i+'">'+a.label+'</button>'; }).join('')+
+      '</div></div></div>';
+  } else if(o.kind==='sheet'){
+    ov.innerHTML='<div class="ov sheet"><div class="ov-bg" data-act="ovClose"></div><div class="sheet-box" role="dialog" aria-modal="true"><div class="sheet-grip"></div><div class="sheet-t">'+o.title+'</div>'+
+      o.options.map(function(op,i){
+        if(op.head) return '<div class="sheet-h">'+op.head+'</div>';
+        return '<button class="sheet-opt'+(op.selected?' sel':'')+'" data-act="sheetOpt" data-i="'+i+'"><span>'+op.label+(op.sub?'<span class="s">'+op.sub+'</span>':'')+'</span>'+(op.selected?I.check:'')+'</button>';
+      }).join('')+'</div></div>';
+  } else if(o.kind==='cal'){
+    ov.innerHTML='<div class="ov"><div class="ov-bg" data-act="ovClose"></div>'+renderCal(o)+'</div>';
+  } else if(o.kind==='add'){
+    ov.innerHTML=renderAddSheet(o);
+  }
+}
+function openCal(i){
+  var it=E.list[i], min=addDays(today(),1), base=it.date?parseIso(it.date):min;
+  UI.ov={ kind:'cal', idx:i, sel:it.date, view:new Date(base.getFullYear(),base.getMonth(),1) };
+  renderOverlay();
+}
+function renderCal(o){
+  var min=addDays(today(),1), v=o.view, y=v.getFullYear(), m=v.getMonth();
+  var title = o.sel ? parseIso(o.sel).toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}) : 'Choose Date';
+  var canPrev = (y*12+m) > (min.getFullYear()*12+min.getMonth());
+  var first=new Date(y,m,1).getDay(), days=new Date(y,m+1,0).getDate(), tIso=iso(today());
+  var g=['S','M','T','W','T','F','S'].map(function(w){ return '<div class="wd">'+w+'</div>'; }).join('');
+  for(var b=0;b<first;b++) g+='<div></div>';
+  for(var d=1; d<=days; d++){
+    var dt=new Date(y,m,d), di=iso(dt);
+    g+='<button class="day'+(di===o.sel?' sel':'')+(di===tIso?' today':'')+'" data-act="calDay" data-date="'+di+'"'+(dt<min?' disabled':'')+'>'+d+'</button>';
+  }
+  return '<div class="cal" role="dialog" aria-modal="true"><div class="cal-h"><small>Select date</small><div>'+title+'</div></div>'+
+    '<div class="cal-nav"><button data-act="calPrev"'+(canPrev?'':' disabled')+' aria-label="Previous month">'+I.chevL+'</button>'+
+    '<b>'+v.toLocaleDateString('en-US',{month:'long',year:'numeric'})+'</b>'+
+    '<button data-act="calNext" aria-label="Next month">'+I.chevR+'</button></div>'+
+    '<div class="cal-grid">'+g+'</div>'+
+    '<div class="cal-act"><button class="txt-btn" data-act="ovClose">CANCEL</button><button class="txt-btn" data-act="calOk"'+(o.sel?'':' disabled')+'>OK</button></div></div>';
+}
+
+/* ---------- Feedback ---------- */
+function toast(msg, type){
+  var t=$('#toast'); t.textContent=msg; t.className='toast show'+(type?' '+type:'');
+  clearTimeout(toast._t); toast._t=setTimeout(function(){ t.className='toast'; },1900);
+}
+function hideToast(){ clearTimeout(toast._t); $('#toast').className='toast'; }
+function loading(ms, text){
+  var l=$('#loading'); $('#loadingText').textContent=text||'Loading...'; l.classList.add('show');
+  return new Promise(function(res){ setTimeout(function(){ l.classList.remove('show'); res(); }, ms); });
+}
+function bumpBadge(){ var b=$('#cartBadge'); if(b){ b.classList.remove('bump'); void b.offsetWidth; b.classList.add('bump'); } }
+
+/* ---------- Events ---------- */
+var phone=$('#phone');
+phone.addEventListener('click', function(e){
+  var el=e.target.closest('[data-act]');
+  if(!el || el.disabled) return;
+  var a=el.dataset.act, idx=el.dataset.idx!=null?+el.dataset.idx:null, k=el.dataset.key;
+  switch(a){
+    case 'cartStep': setCartQty(k, S.cart[k]+(+el.dataset.d)); break;
+    case 'delProd': {
+      var pid=el.dataset.pid;
+      if(productKeys(pid).some(function(x){ return allocated(x)>0; })){
+        dialog('Cannot Remove Item','This item is currently assigned to a delivery schedule.<br><br>Please remove it from the delivery schedule first.',[
+          { label:'Confirm', kind:'danger' }
+        ]);
+        break;
+      }
+      dialog('Remove Item','Are you sure you want to remove '+PRODUCTS[pid].name+' from your cart?',[
+        { label:'Remove', kind:'danger', fn:function(){
+            productKeys(pid).forEach(function(x){ delete S.cart[x]; });
+            cleanupSchedules(); persist(); render(); bumpBadge(); toast('Item removed from cart');
+        } },
+        { label:'Cancel' }
+      ]);
+      break;
+    }
+    case 'addDelivery': enterSchedule('add'); break;
+    case 'openSched':   enterSchedule('sched', idx); break;
+    case 'checkout':
+      if(!stockView().valid || !S.schedules.length){ render(); showCheckoutTip(); break; }   // re-render: the result may have just expired
+      checkout(); break;
+    case 'stockRemove': {
+      // Out-of-stock / unvalidated line: removed from the cart and from any delivery schedule in one step,
+      // otherwise a scheduled line could block both removal and opening the schedule.
+      var wasScheduled = allocated(k)>0;
+      delete S.cart[k]; cleanupSchedules();
+      if(S.stock && S.stock.status==='done') S.stock.fpShown=cartFp();   // keep the other results on screen
+      persist(); render(); bumpBadge(); toast(wasScheduled ? 'Item removed from cart and delivery schedule' : 'Item removed from cart');
+      break;
+    }
+    case 'restoreCart':
+      S.cart=Object.assign({},INITIAL_CART); S.order=INITIAL_ORDER.slice(); S.schedules=[]; S.incoterm=DEFAULT_INCOTERM; S.draftOrderId=null; S.stock={ status:'none' };
+      persist(); render(); bumpBadge(); toast('Đã khôi phục giỏ hàng demo','success'); break;
+    case 'nav': {
+      var tab=el.dataset.tab;
+      if(tab==='cart'){ if(UI.screen!=='cart'){ go('cart'); } break; }
+      if(tab==='category'){ if(UI.screen!=='results'){ UI.prev=UI.screen; go('results'); } break; }
+      if(tab==='profile'){
+        var opts=[{ head:'Tình huống tồn kho' }];
+        Object.keys(STOCK_CASES).forEach(function(c){
+          opts.push({ label:STOCK_CASES[c].label, sub:STOCK_CASES[c].sub, selected:(S.stockCase||'mixed')===c, fn:function(){ setStockCase(c); } });
+        });
+        opts.push({ head:'Phản hồi của dịch vụ Check Stock' });
+        Object.keys(ATP_MODES).forEach(function(m){
+          opts.push({ label:ATP_MODES[m].label, sub:ATP_MODES[m].sub, selected:S.atpMode===m, fn:function(){ setAtpMode(m); } });
+        });
+        opts.push({ head:'Thời gian hiệu lực kết quả' });
+        VALID_OPTIONS.forEach(function(m){
+          opts.push({ label:m+' phút', sub:'Cảnh báo khi còn 30 giây', selected:(S.validMin||1)===m, fn:function(){
+            S.validMin=m; persist(); render(); toast('Thời gian hiệu lực: '+m+' phút (áp dụng cho lần kiểm tra kế tiếp)','success');
+          } });
+        });
+        opts.push({ head:'Khác' });
+        opts.push({ label:'Xem tồn kho giả', sub:'Số lượng còn hàng của từng sản phẩm', fn:showStockTable });
+        opts.push({ label:'Đặt lại toàn bộ dữ liệu demo', sub:'Giỏ hàng ban đầu, xoá lịch giao và kết quả Check Stock, Order ID về 2677', fn:function(){
+            S=fresh(); E=null; UI.checking=false; persist(); go('cart'); bumpBadge(); toast('Đã đặt lại dữ liệu demo','success');
+        } });
+        sheet('Demo controls', opts);
+        break;
+      }
+      toast('Bản demo này chỉ mô phỏng luồng Cart & Delivery Schedule'); break;
+    }
+    /* editor */
+    case 'back': editorBack(); break;
+    case 'done': E=null; go('cart'); break;
+    case 'pickIncoterm':
+      sheet('Incoterm', INCOTERMS.map(function(v){ return { label:v, selected:v===E.incoterm, fn:function(){ changeIncoterm(v); } }; }));
+      break;
+    case 'toggleAcc': E.expanded = E.expanded===idx ? -1 : idx; render(); break;
+    case 'pickAddr': {
+      var it=E.list[idx];
+      sheet('Select Address', ADDR[E.incoterm].map(function(ad,j){
+        return { label:esc(ad.name), sub:esc(ad.addr), selected:j===it.addressIdx, fn:function(){ if(it.addressIdx!==j){ it.addressIdx=j; it.dirty=true; render(); } } };
+      }));
+      break;
+    }
+    case 'pickDate': openCal(idx); break;
+    case 'allocStep': setAlloc(idx, k, (E.list[idx].alloc[k]||0)+(+el.dataset.d)); break;
+    case 'resetAlloc': {
+      var it2=E.list[idx], p=el.dataset.pid, changed=false;
+      Object.keys(PRODUCTS[p].uoms).forEach(function(u){ var kk=keyOf(p,u); if(it2.alloc[kk]){ it2.alloc[kk]=0; changed=true; } });
+      if(changed){ it2.dirty=true; render(); }
+      break;
+    }
+    case 'saveSched': saveSched(idx); break;
+    case 'delSched': {
+      var di = E.expanded>=0 ? E.expanded : E.list.length-1;
+      dialog('Delete '+ordinal(di+1)+' Schedule?','This delivery schedule and its allocated quantities will be removed.',[
+        { label:'Delete', kind:'danger', fn:function(){
+            E.list.splice(di,1); commitEditor([]);
+            E.expanded = E.list.length ? Math.min(di,E.list.length-1) : -1;
+            render(); toast('Delivery schedule deleted');
+        } },
+        { label:'Cancel' }
+      ]);
+      break;
+    }
+    case 'addSched': {
+      E.list.push(newDraft()); E.expanded=E.list.length-1; render();
+      var head=$('.acc-head[data-idx="'+E.expanded+'"]'); if(head) head.scrollIntoView({block:'start'});
+      break;
+    }
+    /* results */
+    case 'resultsBack': go(UI.prev && UI.prev!=='results' ? UI.prev : 'cart'); break;
+    case 'filter': {
+      var opts=[['all','All Products'],['halal','Halal'],['promo','Promotion']];
+      sheet('Filter', opts.map(function(f){ return { label:f[1], selected:UI.filter===f[0], fn:function(){ UI.filter=f[0]; scrollMem.results=0; render(); } }; }));
+      break;
+    }
+    case 'openAdd': openAddSheet(el.dataset.pid); break;
+    case 'addStep': UI.ov.qty[k]=Math.max(0,Math.min(MAX_QTY,(UI.ov.qty[k]||0)+(+el.dataset.d))); renderOverlay(); break;
+    case 'addToCart': addToCart(); break;
+    /* confirm */
+    case 'confirmBack': go('cart'); break;
+    case 'submit': submitOrder(); break;
+    /* overlays */
+    case 'ovClose': closeOv(); break;
+    case 'dlg': { var act=UI.ov.actions[+el.dataset.i]; closeOv(); if(act.fn) act.fn(); break; }
+    case 'sheetOpt': { var op=UI.ov.options[+el.dataset.i]; closeOv(); if(op.fn) op.fn(); break; }
+    case 'calPrev': UI.ov.view=new Date(UI.ov.view.getFullYear(),UI.ov.view.getMonth()-1,1); renderOverlay(); break;
+    case 'calNext': UI.ov.view=new Date(UI.ov.view.getFullYear(),UI.ov.view.getMonth()+1,1); renderOverlay(); break;
+    case 'calDay': UI.ov.sel=el.dataset.date; renderOverlay(); break;
+    case 'calOk': {
+      var c=UI.ov, t=E.list[c.idx];
+      if(t.date!==c.sel){ t.date=c.sel; t.dirty=true; }
+      t.err=null; closeOv(); render(); break;
+    }
+  }
+});
+phone.addEventListener('change', function(e){
+  var el=e.target; if(!el.dataset || !el.dataset.input) return;
+  var kind=el.dataset.input; if(kind==='instr') return;
+  var v=parseInt(String(el.value).replace(/\D/g,''),10);
+  if(kind==='cart'){ if(isNaN(v)||v<1){ toast('Quantity must be at least 1'); render(); return; } setCartQty(el.dataset.key, v); }
+  else if(kind==='alloc'){ setAlloc(+el.dataset.idx, el.dataset.key, isNaN(v)?0:v); }
+  else if(kind==='add' && UI.ov && UI.ov.kind==='add'){ UI.ov.qty[el.dataset.key]=isNaN(v)?0:Math.min(MAX_QTY,v); renderOverlay(); }
+});
+phone.addEventListener('input', function(e){
+  var el=e.target;
+  if(el.id==='searchInput'){
+    UI.q=el.value; var list=$('#resultList'); if(list){ list.innerHTML=resultList(); list.scrollTop=0; }
+    return;
+  }
+  if(el.dataset && el.dataset.input==='instr' && E){
+    var i=+el.dataset.idx; E.list[i].instruction=el.value; E.list[i].dirty=true; refreshEditorButtons(i);
+  }
+});
+phone.addEventListener('keydown', function(e){
+  if(e.key==='Enter' && e.target.classList && e.target.classList.contains('st-input')){ e.preventDefault(); e.target.blur(); }
+  if(e.key==='Escape' && UI.ov && !(UI.ov.kind==='dialog' && !UI.ov.dismissible)) closeOv();
+});
+phone.addEventListener('focusin', function(e){
+  if(e.target.classList && e.target.classList.contains('st-input')) setTimeout(function(){ try{ e.target.select(); }catch(x){} },0);
+});
+
+/* Validity countdown: update the timer text every tick; re-render when the phase changes
+   (ok -> warn -> expired). Skipped while the user is typing a quantity. */
+setInterval(function(){
+  if(UI.screen==='schedule'){                  // only the strip is updated, so typing in the form is never disturbed
+    var sv=stockView(), el=$('#schedStock');
+    if(el){
+      var cls='sched-stock'+(sv.valid?(sv.phase==='warn'?' warn':''):' off');
+      if(el.className!==cls){ el.className=cls; el.innerHTML=schedStockInner(sv); }
+      else if(sv.valid){ var tt=$('#stockTimer'); if(tt) tt.textContent=mmss(sv.left); }
+    }
+    return;
+  }
+  if(UI.screen!=='cart') return;
+  var v=stockView();
+  if(v.phase!==UI.stockPhase){
+    var a=document.activeElement;
+    if(!(a && a.classList && a.classList.contains('st-input'))) render();
+    return;
+  }
+  if(v.valid){
+    var t=$('#stockTimer'); if(t) t.textContent=mmss(v.left);
+    var s=$('#stockLeft');  if(s) s.textContent=secs(v.left);
+  }
+}, 250);
+
+render();
+})();
+</script>
+</body>
+</html>
